@@ -3,7 +3,6 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
 const { User } = require("../models/user");
-const { Item } = require("../models/item");
 
 const maxAge = 24 * 60 * 60;
 
@@ -180,15 +179,10 @@ exports.addFarmToUser = async (req, res) => {
   //Get the request body for the farm and add it to the user
   
   const newFarm = {
-    "name": req.body.farmName,
-    "type": req.body.farmType,
-    "isDisabled": req.body.isDisabled,
-    "government": req.body.government,
-    "city": req.body.city,
-    "landNumber": req.body.landNumber,
-    "landArea": req.body.landArea,
-    "officalNumber": req.body.officalNumber
+    "serialNumber": req.body.serialNumber,
   }  
+
+  // 3ayzeen el farm id el awal no7oto badal el seraial number
   User.findOneAndUpdate(
     { _id: req.params.id },
     { $push: { farms: newFarm } },
@@ -209,114 +203,28 @@ exports.RemoveFarmFromUser = async (req, res) => {
       .status(404)
       .json({ message: "The user with the given ID was not found." });
   }
-  //Check if the offical number was sent in the request body
-  if (!req.body.officalNumber) { 
+  //Check if the serial number was sent in the request body
+  if (!req.body.serialNumber) { 
     return res
       .status(400)
-      .send("The farm's offical number must be provided!");
+      .send("The farm's serial number must be provided!");
   }
-  //Check if there is a farm with this offical number
+  //Check if there is a farm with this serial number
   let userFarms = userExist.farms;
-  const farmExist = userFarms.find(f => f.officalNumber === req.body.officalNumber);
+  const farmExist = userFarms.find(f => f.serialNumber === req.body.serialNumber);
   if (!farmExist) {
     return res
       .status(404)
-      .send("This farm offical number was not found!");
+      .send("This farm serial number was not found!");
   }
   //Delete the farm from the user
-  userFarms = userFarms.filter(f => f.officalNumber !== req.body.officalNumber);
+  userFarms = userFarms.filter(f => f.serialNumber !== req.body.serialNumber);
 
   User.findOneAndUpdate({ _id: req.params.id }, {
     farms: userFarms
   }).exec();
 
   res.status(200).json({message: "Farm was removed successfuly."});
-};
-
-//ADD ITEM TO THE FARM OF THE USER
-exports.addItemToFarm = async (req,  res) => {
-  //Check if the user already exists
-  let userExist = await User.findById(req.params.id);
-
-  if (!userExist) {
-    return res
-      .status(404)
-      .json({ message: "The user with the given ID was not found." });
-  }
-
-  //find the item with provided serial number
-  const item = await Item.findOne({ serialNumber: req.body.serialNumber });
-
-  if(!item) {
-    return res
-      .status(404)
-      .json({message: "No item with this serial number was found!"});
-  }
-
-  //Check if there is a farm with this offical number
-  let userFarms = userExist.farms;
-  let farmExist = userFarms.find(f => f.officalNumber === req.body.officalNumber);
-
-  if (!farmExist) {
-    return res
-      .status(404)
-      .send("This farm offical number was not found!");
-  }
-  
-  const ItemAddedID = { _id: item._id };
-
-  //Add the item to the farm
-  User.findOneAndUpdate(
-    { _id: req.params.id }, 
-    { $push: { "farms.$[].farmItems": ItemAddedID } }
-  ).exec();
-
-  res.status(201).json({message: "Item was added successfuly."});
-};
-
-//REMOVE ITEM FROM FARM   (Needs Validation)
-exports.RemoveItemFromFarm = async (req, res) => {
-  //Check if the user already exists
-  let userExist = await User.findById(req.params.id);
-
-  if (!userExist) {
-    return res
-      .status(404)
-      .json({ message: "The user with the given ID was not found." });
-  }
-
-  //find the item with provided serial number
-  const item = await Item.findOne({ serialNumber: req.body.serialNumber });
-
-  if(!item) {
-    return res
-      .status(404)
-      .json({message: "No item with this serial number was found!"});
-  }
-
-  //Check if there is a farm with this offical number
-  let userFarms = userExist.farms;
-  let farmExist = userFarms.find(f => f.officalNumber === req.body.officalNumber);
-
-  if (!farmExist) {
-    return res
-      .status(404)
-      .send("This farm offical number was not found!");
-  }
-  
-  //filter the specific farm needed by the user
-  userFarms = userFarms.filter(f => f.officalNumber === req.body.officalNumber);
-
-  //Delete the item from the farm
-  User.findOneAndUpdate(
-    { _id: req.params.id }, 
-    { $pullAll: { 
-      "farms.$[].farmItems": [{ _id: item._id }] 
-    } }
-  ).exec();
-
-  res.status(200).json({message: "Item has been deleted successfuly."});
-
 };
 
 //GET THE NUMBER OF USERS STORED IN THE DATABASE

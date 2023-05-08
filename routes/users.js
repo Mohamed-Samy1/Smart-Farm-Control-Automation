@@ -1,5 +1,4 @@
 express = require("express");
-
 const router = express.Router();
 
 const usersController = require('../controllers/users');
@@ -19,15 +18,11 @@ router.get("/:id", usersController.getUser);
 //Update an existing user
 router.put("/:id", usersController.updateUser);
 
-//Update an existing user (Adding Farm)
+//Add Farm to user
 router.put("/addFarm/:id", usersController.addFarmToUser);
 
-//Update an existing user (Delete Farm)
+//Delete farm from user
 router.put("/deleteFarm/:id", usersController.RemoveFarmFromUser);
-
-router.put('/addItemToFarm/:id', usersController.addItemToFarm);
-
-router.put('/RemoveItemFromFarm/:id', usersController.RemoveItemFromFarm);
 
 //Delete an existing user
 router.delete("/:id", usersController.deleteUser);

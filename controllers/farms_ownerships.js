@@ -4,7 +4,7 @@ const { User } = require('../models/user');
 exports.changeFarmOwner = async (req, res) => {
 
   // find the current owner of the farm using farm offical number
-  const previousOwner = await User.findOne( { "farms.officalNumber": req.body.officalNumber } );
+  const previousOwner = await User.findOne( { "farms.serialNumber": req.body.serialNumber } );
   
   if (!previousOwner) {
     return res
@@ -23,8 +23,8 @@ exports.changeFarmOwner = async (req, res) => {
 
   //Delete the farm from userfarms
   const previousOwnerFarmsBefore = previousOwner.farms;
-  let previousOwnerFarmsAfter = previousOwnerFarmsBefore.filter(f => f.officalNumber !== req.body.officalNumber);
-  let farmToBeAddedToTheUser = previousOwnerFarmsBefore.filter(f => f.officalNumber === req.body.officalNumber);
+  let previousOwnerFarmsAfter = previousOwnerFarmsBefore.filter(f => f.serialNumber !== req.body.serialNumber);
+  let farmToBeAddedToTheUser = previousOwnerFarmsBefore.filter(f => f.serialNumber === req.body.serialNumber);
 
   User.findOneAndUpdate(
     { _id: previousOwner._id }, 
@@ -46,7 +46,7 @@ exports.changeFarmOwner = async (req, res) => {
     prevOwner_name: prevOwnerName,
     nextOwner_id:nextOwner._id,
     nextOwner_name: newOwnerName,
-    farm_officalNumber: req.body.officalNumber
+    serialNumber: req.body.serialNumber
   });
 
   //Add the record to the database
@@ -66,7 +66,3 @@ exports.getFarmsOwnershipsHistory = async (req, res) => {
 
   res.status(200).send(farmsOwnershipsList);
 };
-
-  
-  
-

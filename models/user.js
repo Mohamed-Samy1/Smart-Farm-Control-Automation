@@ -38,31 +38,10 @@ const userSchema = new mongoose.Schema({
   },
   farms: [ 
     {
-      officalNumber: {
-        type: String,
-        unique: true,
-        required: true
-      },
-      name: {
-        type: String,
-        unique: [true, "The farm name entered was already taken!"]
-      },
-      type: {
-        type: String
-      },
-      isDisabled: Boolean,
-      government: String,
-      city: String,
-      landNumber: String,
-      landArea: String,
-      farmItems: [
-        {
-          _id: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Item'
-          }
-        }
-      ]
+      _id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Farm'
+      }
     } 
   ],
   //Not required and used only when reset is requested

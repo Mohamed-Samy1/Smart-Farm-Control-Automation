@@ -21,9 +21,9 @@ const farmsOwnersSchema = new mongoose.Schema({
     required: [true, "Please enter the next user name!"],
     ref: 'User'
   },
-  farm_officalNumber: {
+  serialNumber: {
     type: String,
-    required: [true, "Please enter the farm's offical number!"]
+    required: [true, "Please enter the farm's serial number!"]
   }  
 }, { timestamps: true }
 );

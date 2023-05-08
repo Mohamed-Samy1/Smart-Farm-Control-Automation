@@ -20,16 +20,22 @@ app.use(morgan('tiny'));
 
 //Routes import
 const userRoutes = require('./routes/users');
-const itemRoutes = require('./routes/items');
-const itemsOwnershipsRoutes = require('./routes/itemOwnerships');
+const farmRoutes = require('./routes/farms');
+const dataRoutes = require('./routes/data');
+const plantRoutes = require('./routes/plants');
+const alertRoutes = require('./routes/alerts');
+const notificationRoutes = require('./routes/notifications');
 const farmsOwnershipsRoutes = require('./routes/farmOwnerships');
 
 const { urlencoded } = require('express');
 
 //Routes use
 app.use('/users', userRoutes);
-app.use('/items', itemRoutes);
-app.use('/itemsOwnerships', itemsOwnershipsRoutes);
+app.use('/farms', farmRoutes);
+app.use('/data', dataRoutes);
+app.use('/plants', plantRoutes);
+app.use('/alerts', alertRoutes);
+app.use('/notifications', notificationRoutes);
 app.use('/farmsOwnerships', farmsOwnershipsRoutes);
 
 const PORT = process.env.PORT || 3000;
