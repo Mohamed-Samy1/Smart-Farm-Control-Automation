@@ -25,9 +25,9 @@ router.put('/:id', farmsController.updateFarmById);
 router.delete('/:id', farmsController.deleteFarmById);
 
 //Get farms (names, plants count) by user ID
-app.get('/userFarms/:id', farmsController.getFarmsByUserId);
+router.get('/userFarms/:id', farmsController.getFarmsByUserId);
 
 //Add Farm to user
-app.post('/userFarms/:id', farmsController.addFarmToUser);
+router.post('/userFarms/:id', farmsController.addFarmToUser);
 
 module.exports = router;
