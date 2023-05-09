@@ -33,4 +33,8 @@ module.exports = router;
 7-  endpoint <---- Object of name of the plant, and harvest date                                          DONE 
 8-  Add Plant to farm (farm ID and plant ID)                                                              DONE
 
+
+--------------------------------------
+
+1) get user ---> recieve token instead of user ID in params.
 */

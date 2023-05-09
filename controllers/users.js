@@ -54,12 +54,12 @@ exports.register = async (req, res) => {
     user = await user.save();
 
     // Create a cookie name as jwt and contain token that expires after 1 day
-    // In cookies, expiration date is calculated by milisecond
+    // In cookies, expiration date is calculated by milliseconds
     const token = createJWT(user._id);
 
     if (!user) return res.status(400).send("the user cannot be created!");
 
-    res.status(201).json({ user, token });
+    res.status(201).json({ token });
   } else {
     return res.status(400).send("The two fields of passwords should be the same");
   }
@@ -68,7 +68,6 @@ exports.register = async (req, res) => {
 //USER LOGIN
 exports.login = async (req, res) => {
   const user = await User.findOne({ email: req.body.email });
-  const secret = process.env.secret;
 
   if (!user) {
     return res.status(404).send("The user was not found!");
@@ -76,7 +75,7 @@ exports.login = async (req, res) => {
 
   if (user && bcrypt.compareSync(req.body.password, user.password)) {
     const token = createJWT(user._id);
-    res.status(200).json({ user, token });
+    res.status(200).json({ token });
   } else {
     return res.status(400).send("Password is wrong!");
   }
