@@ -49,8 +49,7 @@ exports.register = async (req, res) => {
       email: req.body.email,
       password: req.body.password,
       phone: req.body.phone,
-      country: req.body.country,
-      role: req.body.role
+      country: req.body.country
     });
     user = await user.save();
 

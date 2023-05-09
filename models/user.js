@@ -32,9 +32,9 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please enter your country!"],
   },
-  role: {
-    type: String,
-    required: [true, "Please enter the role of the user!"]
+  isAdmin: {
+    type: Boolean,
+    default: false
   },
   farms: [ 
     {
