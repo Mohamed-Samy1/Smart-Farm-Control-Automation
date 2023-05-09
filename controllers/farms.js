@@ -65,7 +65,6 @@ exports.addFarm = async (req, res) => {
   try {
     const farm = new Farm({
       serialNumber: req.body.serialNumber,
-      name: req.body.name,
       type: req.body.type,
     });
 
@@ -143,6 +142,7 @@ exports.addFarmToUser = async (req, res) => {
   try {
     const user_id = req.params.id;
     const farm_serialNumber = req.body.serialNumber;
+    const farm_name = req.body.name;
 
     const user = await User.findById(user_id);
     if (!user) {
@@ -159,6 +159,8 @@ exports.addFarmToUser = async (req, res) => {
     }
 
     user.farms.push({ _id: farm._id });
+    farm.name = farm_name;
+    
     await user.save();
 
     res.status(200).json({ message: 'Farm added to user' });

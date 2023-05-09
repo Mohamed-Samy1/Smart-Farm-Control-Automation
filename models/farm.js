@@ -8,7 +8,7 @@ const farmSchema = new mongoose.Schema({
   },
   name: {
     type: String,
-    required: [true, "Please enter the name of the farm."],
+    default: "New Farm",
   },
   type: {
     type: String,
