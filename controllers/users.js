@@ -107,12 +107,11 @@ exports.getUser = async (req, res) => {
     // find user with the given ID and token, and exclude the password field
     const user = await User.findOne({ _id: decoded._id, 'tokens.token': token }).select('-password'); 
     if (!user) {
-      return res.status(404).send({ error: "User not found" });
+      return res.status(404).send({ error: "User not found", userId: user._id });
     }
-    console.log(user._id);
     res.status(200).send(user);
   } catch (err) {
-    return res.status(401).send({ error: 'Authentication failed' });
+    return res.status(401).send({ error: 'Authentication failed'});
   }
 };
 
