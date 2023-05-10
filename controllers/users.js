@@ -99,19 +99,24 @@ exports.getAllUsers = async (req, res) => {
 
 //GETTING A SPECIFIC USER
 exports.getUser = async (req, res) => {
-  // extract token from header
-  const token = req.header('Authorization').replace('Bearer ', ''); 
   try {
-    // verify token
-    const decoded = jwt.verify(token, process.env.secret); 
-    // find user with the given ID and token, and exclude the password field
-    const user = await User.findOne({ _id: decoded._id, 'tokens.token': token }).select('-password'); 
+    // Extract the JWT token from the Authorization header
+    const token = req.headers.authorization.split(' ')[1];
+
+    // Verify the JWT token and extract the user ID
+    const decodedToken = jwt.verify(token, process.env.secret);
+    const userId = decodedToken.id;
+
+    // Find the user in the database by ID and exclude the password field
+    const user = await User.findById(userId).select('-password');
+
     if (!user) {
-      return res.status(404).send({ error: "User not found" });
+      throw new Error('User not found');
     }
-    res.status(200).send(user);
-  } catch (err) {
-    return res.status(401).send({ error: 'Authentication failed' });
+
+    res.status(200).json(user);
+  } catch (e) {
+    res.status(401).json({ error: 'Authentication failed' });
   }
 };
 
