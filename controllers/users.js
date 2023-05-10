@@ -109,6 +109,7 @@ exports.getUser = async (req, res) => {
     if (!user) {
       return res.status(404).send({ error: "User not found" });
     }
+    console.log(user._id);
     res.status(200).send(user);
   } catch (err) {
     return res.status(401).send({ error: 'Authentication failed' });
