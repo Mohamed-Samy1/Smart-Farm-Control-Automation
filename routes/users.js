@@ -13,7 +13,7 @@ router.post('/register', usersController.register);
 router.get('/logout', usersController.logout);
 
 //Getting a specific user
-router.get("/:id", usersController.getUser);
+router.get("/getUser", usersController.getUser);
 
 //Update an existing user
 router.put("/:id", usersController.updateUser);
