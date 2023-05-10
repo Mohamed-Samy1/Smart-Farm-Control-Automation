@@ -99,14 +99,20 @@ exports.getAllUsers = async (req, res) => {
 
 //GETTING A SPECIFIC USER
 exports.getUser = async (req, res) => {
-  const user = await User.findById(req.params.id).select("-password");
-
-  if (!user) {
-    return res
-      .status(404)
-      .json({ message: "The user with the given ID was not found." });
+  // extract token from header
+  const token = req.header('Authorization').replace('Bearer ', ''); 
+  try {
+    // verify token
+    const decoded = jwt.verify(token, process.env.secret); 
+    // find user with the given ID and token, and exclude the password field
+    const user = await User.findOne({ _id: decoded._id, 'tokens.token': token }).select('-password'); 
+    if (!user) {
+      return res.status(404).send({ errpr: "User not found" });
+    }
+    res.status(200).send(user);
+  } catch (err) {
+    return res.status(401).send({ error: 'Authentication failed' });
   }
-  res.status(200).send(user);
 };
 
 //UPDATE AN EXISTNG USER

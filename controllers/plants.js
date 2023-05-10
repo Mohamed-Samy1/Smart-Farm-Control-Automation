@@ -62,6 +62,16 @@ exports.getPlantById = async (req, res) => {
   }
 };
 
+
+//  1-  USE USER TOKEN INSTEAD OF USER ID
+//  2-  USE SERIAL NUMBER IN REQUEST BODY
+//  3-  USE THE NAME OF THE PLANT TO ADD IT IN REQUEST BODY
+//  4-  USE THE PLANT COUNT IN REQUEST BODY
+
+// ADD ENDPOINT TO GET ALL PLANTS (NAMES ONLY)
+// MODIFY ENDPOINT TO GET ALL PLANTS (NAME, COUNT, HARVEST_DATE)
+
+
 // Add plant to user farm
 exports.addPlantToFarm = async (req, res) => {
   try {
