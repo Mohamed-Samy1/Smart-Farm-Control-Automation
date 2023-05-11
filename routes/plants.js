@@ -12,12 +12,15 @@ router.delete('/:id', plantsController.deletePlant);
 router.put('/:id', plantsController.updatePlant);
 
 // Get a plant by ID
-router.get('/:id', plantsController.getPlantById);
+router.get('/getPlantByFarmAndName', plantsController.getPlantByFarmAndName);
 
 // Add plant to user farm
-router.post('addPlantToFarm/:id', plantsController.addPlantToFarm);
+router.post('/addPlantToFarm', plantsController.addPlantToFarm);
 
 // get an array of objects of plants (names), and harvest date of each plant in a specific farm
-router.get('getPlantsByFarm/:id', plantsController.getPlantsByFarm);
+router.get('/getPlantsAndHarvestDates', plantsController.getPlantsAndHarvestDates);
+
+// GET ALL PLANTS (NAMES ONLY)
+router.get('/getAllPlantNames', plantsController.getAllPlantNames);
 
 module.exports = router;

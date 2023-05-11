@@ -48,13 +48,32 @@ exports.updatePlant = async (req, res) => {
   }
 };
 
-// Get a plant by ID
-exports.getPlantById = async (req, res) => {
+exports.getPlantByFarmAndName = async (req, res) => {
   try {
-    const plant = await Plant.findById(req.params.id);
-    if (!plant) {
-      return res.status(404).json({ error: "Plant not found." });
+    // Find the farm in the database by serialNumber
+    const farm_serialNumber = req.body.serialNumber;
+    const farm = await Farm.findOne({ serialNumber: farm_serialNumber }).populate('plants._id', 'name life_cycle');
+
+    if (!farm) {
+      return res.status(404).json({ error: "Farm not found." });
     }
+
+    // Find the plant in the farm by name
+    const plantName = req.body.plantName;
+    const plantObj = farm.plants.find(plantObj => plantObj._id.name === plantName);
+
+    if (!plantObj) {
+      return res.status(404).json({ error: "Plant not found in the farm." });
+    }
+
+    // Extract the plant object from the plantObj and return it in the response
+    const plant = {
+      name: plantObj._id.name,
+      life_cycle: plantObj._id.life_cycle,
+      plant_count: plantObj.plant_count,
+      harvest_date: plantObj.plant_health.harvest_date
+    };
+
     return res.status(200).json(plant);
   } catch (error) {
     console.error(error);
@@ -63,30 +82,39 @@ exports.getPlantById = async (req, res) => {
 };
 
 
-//  1-  USE USER TOKEN INSTEAD OF USER ID
-//  2-  USE SERIAL NUMBER IN REQUEST BODY
-//  3-  USE THE NAME OF THE PLANT TO ADD IT IN REQUEST BODY
-//  4-  USE THE PLANT COUNT IN REQUEST BODY
-
 // ADD ENDPOINT TO GET ALL PLANTS (NAMES ONLY)
-// MODIFY ENDPOINT TO GET ALL PLANTS (NAME, COUNT, HARVEST_DATE)
+exports.getAllPlantNames = async (req, res) => {
+  try {
+    const plantNames = await Plant.find({}, 'name');
 
+    return res.status(200).json(plantNames);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Failed to get plant names." });
+  }
+};
 
-// Add plant to user farm
+// MODIFY ENDPOINT TO GET ALL PLANTS (NAME, COUNT, HARVEST_DATE)  ??
+
 exports.addPlantToFarm = async (req, res) => {
   try {
-    const farm = await Farm.findById(req.params.id);
+    // Find the farm in the database by serialNumber
+    const farm_serialNumber = req.body.serialNumber;
+    const farm = await Farm.findOne({ serialNumber: farm_serialNumber });
 
     if (!farm) {
-      return res.status(404).json({ message: 'Farm not found' });
+      return res.status(404).json({ error: "Farm not found." });
     }
 
-    const plant = await Plant.findOne({ name: plant_name });
+    // Find the plant in the database by name
+    const plantName = req.body.plantName;
+    const plant = await Plant.findOne({ name: plantName });
 
     if (!plant) {
-      return res.status(404).json({ message: 'Plant not found' });
+      return res.status(404).json({ error: "Plant not found." });
     }
 
+    // Add the plant to the farm and save the farm
     const newPlant = {
       _id: plant._id,
       plant_count: req.body.plant_count,
@@ -98,32 +126,35 @@ exports.addPlantToFarm = async (req, res) => {
     farm.plants.push(newPlant);
     await farm.save();
 
-    res.status(200).json({ message: 'Plant added successfully', farm });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Internal server error' });
+    return res.status(200).json(farm);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Failed to add plant to farm." });
   }
 };
 
 // get an array of objects of plants (names), and harvest date of each plant in a specific farm
-exports.getPlantsByFarm = async (req, res) => {
+exports.getPlantsAndHarvestDates = async (req, res) => {
   try {
-    const farm = await Farm.findById(req.params.id).populate('plants._id');
+    // Find the farm in the database by serialNumber
+    const farm_serialNumber = req.body.serialNumber;
+    const farm = await Farm.findOne({ serialNumber: farm_serialNumber }).populate('plants._id', 'name life_cycle');
 
     if (!farm) {
-      return res.status(404).json({ message: 'Farm not found' });
+      return res.status(404).json({ error: "Farm not found." });
     }
 
-    const plants = farm.plants.map((plant) => {
+    // Extract the plant names and harvest dates from the farm object
+    const plantsAndHarvestDates = farm.plants.map(plantObj => {
       return {
-        name: plant._id.name,
-        harvest_date: plant.plant_health.harvest_date
-      };
+        name: plantObj._id.name,
+        harvest_date: plantObj.plant_health.harvest_date
+      }
     });
 
-    res.status(200).json({ plants });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Internal server error' });
+    return res.status(200).json(plantsAndHarvestDates);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Failed to get plants and harvest dates." });
   }
 };
