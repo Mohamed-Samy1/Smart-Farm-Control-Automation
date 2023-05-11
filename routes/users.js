@@ -16,19 +16,16 @@ router.get('/logout', usersController.logout);
 router.get("/getUser", usersController.getUser);
 
 //Update an existing user
-router.put("/:id", usersController.updateUser);
+router.put("/updateUser", usersController.updateUser);
 
 //Add Farm to user
-router.put("/addFarm/:id", usersController.addFarmToUser);
+router.put("/addFarmToUser", usersController.addFarmToUser);
 
 //Delete farm from user
-router.put("/deleteFarm/:id", usersController.RemoveFarmFromUser);
+router.put("/RemoveFarmFromUser", usersController.RemoveFarmFromUser);
 
 //Delete an existing user
-router.delete("/:id", usersController.deleteUser);
-
-//Get the number of users stored in our database
-router.get(`/get/count`, usersController.howManyUsers);
+router.delete("/deleteUser", usersController.deleteUser);
 
 //After hitting the reset button
 router.post(`/reset`, usersController.postReset);

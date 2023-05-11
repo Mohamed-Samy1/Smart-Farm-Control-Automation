@@ -120,132 +120,148 @@ exports.getUser = async (req, res) => {
   }
 };
 
-//UPDATE AN EXISTNG USER
+//UPDATE AN EXISTING USER
 exports.updateUser = async (req, res) => {
-  const userExist = await User.findById(req.params.id);
-  if (!userExist) {
-    return res
-      .status(404)
-      .json({ message: "The user with the given ID was not found." });
+  try {
+    // Extract the JWT token from the Authorization header
+    const token = req.headers.authorization.split(' ')[1];
+
+    // Verify the JWT token and extract the user ID
+    const decodedToken = jwt.verify(token, process.env.secret);
+    const userId = decodedToken.id;
+
+    const userExist = await User.findById(userId);
+    if (!userExist) {
+      return res.status(404).json({ message: "The user with the given ID was not found." });
+    }
+
+    let newPassword;
+    if (req.body.password) {
+      newPassword = bcrypt.hashSync(req.body.password, 10);
+    } else {
+      newPassword = userExist.password;
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        password: newPassword,
+        phone: req.body.phone,
+        country: req.body.country,
+        role: req.body.role
+      },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(400).send("This user cannot be updated!");
+    }
+
+    res.status(200).send(user);
+  } catch (e) {
+    res.status(401).json({ error: 'Authentication failed' });
   }
-
-  let newPassword;
-  if (req.body.password) {
-    newPassword = bcrypt.hashSync(req.body.password, 10);
-  } else {
-    newPassword = userExist.password;
-  }
-
-  const user = await User.findByIdAndUpdate(
-    req.params.id,
-    {
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      email: req.body.email,
-      password: newPassword,
-      phone: req.body.phone,
-      country: req.body.country,
-      role: req.body.role
-    },
-    { new: true }
-  );
-
-  if (!user) return res.status(400).send("This user cannot be updated!");
-
-  res.status(200).send(user);
 };
 
+
 //DELETE AN EXISTING USER
-exports.deleteUser = (req, res) => {
-  User.findByIdAndRemove(req.params.id)
-    .then((user) => {
-      if (user) {
-        return res
-          .status(200)
-          .json({ success: true, message: "the user is deleted!" });
-      } else {
-        return res
-          .status(404)
-          .json({ success: false, message: "user not found!" });
-      }
-    })
-    .catch((err) => {
-      return res.status(500).json({ success: false, error: err });
-    });
+exports.deleteUser = async (req, res) => {
+  try {
+    // Extract the JWT token from the Authorization header
+    const token = req.headers.authorization.split(' ')[1];
+
+    // Verify the JWT token and extract the user ID
+    const decodedToken = jwt.verify(token, process.env.secret);
+    const userId = decodedToken.id;
+
+    const deletedUser = await User.findByIdAndRemove(userId);
+    if (deletedUser) {
+      return res.status(200).json({ success: true, message: "the user is deleted!" });
+    } else {
+      return res.status(404).json({ success: false, message: "user not found!" });
+    }
+  } catch (e) {
+    return res.status(500).json({ success: false, error: e });
+  }
 };
 
 //ADD FARM TO THE USER
 exports.addFarmToUser = async (req, res) => {
- 
-  //Check if the user already exists
-  let userExist = await User.findById(req.params.id);
-  if (!userExist) {
-    return res
-      .status(404)
-      .json({ message: "The user with the given ID was not found." });
+  try {
+    // Extract the JWT token from the Authorization header
+    const token = req.headers.authorization.split(' ')[1];
+
+    // Verify the JWT token and extract the user ID
+    const decodedToken = jwt.verify(token, process.env.secret);
+    const userId = decodedToken.id;
+
+    const userExist = await User.findById(userId);
+    if (!userExist) {
+      return res.status(404).json({ message: "The user with the given ID was not found." });
+    }
+
+    //Get the request body for the farm and add it to the user
+    const newFarm = {
+      "serialNumber": req.body.serialNumber,
+    };  
+
+    //Update the user with the new farm
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: userId },
+      { $push: { farms: newFarm } },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(400).send("This farm cannot be added!");
+    }
+
+    res.status(201).json({ farmAdded: newFarm, message: "Farm was added successfully." });
+  } catch (e) {
+    res.status(401).json({ error: 'Authentication failed' });
   }
-
-  //Get the request body for the farm and add it to the user
-  
-  const newFarm = {
-    "serialNumber": req.body.serialNumber,
-  }  
-
-  // 3ayzeen el farm id el awal no7oto badal el seraial number
-  User.findOneAndUpdate(
-    { _id: req.params.id },
-    { $push: { farms: newFarm } },
-  ).exec();
-
-  if (!newFarm) return res.status(400).send("This farm cannot be added!");
-
-  res.status(201).json({farmAdded: newFarm, message: "Farm was added successfuly."});
 };
 
 //REMOVE A FARM FROM THE USER FARMS
 exports.RemoveFarmFromUser = async (req, res) => {
- 
-  //Check if the user already exists
-  let userExist = await User.findById(req.params.id);
-  if (!userExist) {
-    return res
-      .status(404)
-      .json({ message: "The user with the given ID was not found." });
-  }
-  //Check if the serial number was sent in the request body
-  if (!req.body.serialNumber) { 
-    return res
-      .status(400)
-      .send("The farm's serial number must be provided!");
-  }
-  //Check if there is a farm with this serial number
-  let userFarms = userExist.farms;
-  const farmExist = userFarms.find(f => f.serialNumber === req.body.serialNumber);
-  if (!farmExist) {
-    return res
-      .status(404)
-      .send("This farm serial number was not found!");
-  }
-  //Delete the farm from the user
-  userFarms = userFarms.filter(f => f.serialNumber !== req.body.serialNumber);
+  try {
+    // Extract the JWT token from the Authorization header
+    const token = req.headers.authorization.split(' ')[1];
 
-  User.findOneAndUpdate({ _id: req.params.id }, {
-    farms: userFarms
-  }).exec();
+    // Verify the JWT token and extract the user ID
+    const decodedToken = jwt.verify(token, process.env.secret);
+    const userId = decodedToken.id;
 
-  res.status(200).json({message: "Farm was removed successfuly."});
-};
+    const userExist = await User.findById(userId);
+    if (!userExist) {
+      return res.status(404).json({ message: "The user with the given ID was not found." });
+    }
 
-//GET THE NUMBER OF USERS STORED IN THE DATABASE
-exports.howManyUsers = async (req, res) => {
-  const userCount = await User.countDocuments((count) => count).clone();
+    if (!req.body.serialNumber) { 
+      return res.status(400).send("The farm's serial number must be provided!");
+    }
 
-  if (!userCount) {
-    return res.status(500).json({ success: false });
+    let userFarms = userExist.farms;
+    const farmExist = userFarms.find(f => f.serialNumber === req.body.serialNumber);
+    if (!farmExist) {
+      return res.status(404).send("This farm serial number was not found!");
+    }
+
+    //Delete the farm from the user
+    userFarms = userFarms.filter(f => f.serialNumber !== req.body.serialNumber);
+    const updatedUser = await User.findOneAndUpdate({ _id: userId }, { farms: userFarms }, { new: true });
+
+    if (!updatedUser) {
+      return res.status(400).send("This farm cannot be removed!");
+    }
+
+    res.status(200).json({ message: "Farm was removed successfully." });
+  } catch (e) {
+    res.status(401).json({ error: 'Authentication failed' });
   }
-  res.send({
-    userCount: userCount,
-  });
 };
 
 //AFTER HITTING THE RESET BUTTON
