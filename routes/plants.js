@@ -23,4 +23,7 @@ router.get('/getPlantsAndHarvestDates', plantsController.getPlantsAndHarvestDate
 // GET ALL PLANTS (NAMES ONLY)
 router.get('/getAllPlantNames', plantsController.getAllPlantNames);
 
+// getAllPlantsByFarm
+router.get('/getAllPlantsByFarm', plantsController.getAllPlantsByFarm)
+
 module.exports = router;

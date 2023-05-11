@@ -96,6 +96,32 @@ exports.getAllPlantNames = async (req, res) => {
 
 // MODIFY ENDPOINT TO GET ALL PLANTS (NAME, COUNT, HARVEST_DATE)  ??
 
+exports.getAllPlantsByFarm = async (req, res) => {
+  try {
+    // Find the farm in the database by serialNumber
+    const farm_serialNumber = req.body.serialNumber;
+    const farm = await Farm.findOne({ serialNumber: farm_serialNumber }).populate('plants._id', 'name life_cycle');
+
+    if (!farm) {
+      return res.status(404).json({ error: "Farm not found." });
+    }
+
+    // Create an array of plant objects with name, count, and harvest date
+    const plants = farm.plants.map(plantObj => {
+      return {
+        name: plantObj._id.name,
+        plant_count: plantObj.plant_count,
+        harvest_date: plantObj.plant_health.harvest_date
+      }
+    });
+
+    return res.status(200).json(plants);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Failed to get plants." });
+  }
+};
+
 exports.addPlantToFarm = async (req, res) => {
   try {
     // Find the farm in the database by serialNumber
