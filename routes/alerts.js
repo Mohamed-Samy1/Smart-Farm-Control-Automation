@@ -38,6 +38,6 @@ module.exports = router;
 
 1) get user ---> recieve token instead of user ID in params.                                              DONE
 2) change all function to recieve tokens instead of user ID in params                                     DONE
-3) User will add the name of the farm after purchase
+3) User will add the name of the farm after purchase                                                      DONE  
 4) Modify plants controller
 */
