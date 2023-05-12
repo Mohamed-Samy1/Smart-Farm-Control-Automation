@@ -72,7 +72,7 @@ exports.addFarm = async (req, res) => {
     const userId = decodedToken.id;
 
     // Find the user in the database by ID
-    const user = await User.findById(userId);
+    const user = await User.findOne({ _id: userId });
 
     if (!user) {
       return res.status(404).json({ error: "You need to login first before creating a farm." });
