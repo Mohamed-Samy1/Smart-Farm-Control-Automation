@@ -63,6 +63,20 @@ exports.updateSensorThresholds = async (req, res) => {
 // Add a new farm
 exports.addFarm = async (req, res) => {
   try {
+    // Extract the JWT token from the Authorization header
+    const token = req.headers.authorization.split(' ')[1];
+
+    // Verify the JWT token and extract the user ID
+    const decodedToken = jwt.verify(token, process.env.secret);
+    const userId = decodedToken.id;
+
+    // Find the user in the database by ID
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "You need to login first before creating a farm." });
+    }
+
     const farm = new Farm({
       serialNumber: req.body.serialNumber,
       type: req.body.type,
