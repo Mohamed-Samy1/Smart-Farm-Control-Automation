@@ -24,6 +24,14 @@ router.get('/getPlantsAndHarvestDates', plantsController.getPlantsAndHarvestDate
 router.get('/getAllPlantNames', plantsController.getAllPlantNames);
 
 // getAllPlantsByFarm
-router.get('/getAllPlantsByFarm', plantsController.getAllPlantsByFarm)
+router.get('/getAllPlantsByFarm', plantsController.getAllPlantsByFarm);
+
+/* 
+Get an array of objects that has the following:
+1) serialNumber of each farm the user has
+2) name of each plant in these farms
+3) plant_count of each plant in these farms
+*/
+router.get('/getArrayOfFarmsWithInfoForUser', plantsController.getArrayOfFarmsWithInfoForUser);
 
 module.exports = router;

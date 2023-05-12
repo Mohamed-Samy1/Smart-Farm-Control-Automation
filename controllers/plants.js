@@ -299,3 +299,45 @@ exports.getPlantsAndHarvestDates = async (req, res) => {
     return res.status(500).json({ error: "Failed to get plants and harvest dates." });
   }
 };
+
+/* 
+Get an array of objects that has the following:
+1) serialNumber of each farm the user has
+2) name of each plant in these farms
+3) plant_count of each plant in these farms
+*/
+
+exports.getArrayOfFarmsWithInfoForUser = async (req, res) => {
+  try {
+  // Extract the JWT token from the Authorization header
+  const token = req.headers.authorization.split(' ')[1];
+
+  // Verify the JWT token and extract the user ID
+  const decodedToken = jwt.verify(token, process.env.secret);
+  const userId = decodedToken.id;
+
+  // Find the user in the database by ID
+  const user = await User.findById(userId);
+
+  if (!user) {
+    return res.status(404).json({ error: "User not found." });
+  }
+
+  const farmsWithPlants = await Farm.find({
+    userId,
+    plants: { $exists: true },
+  }).populate("plants").select({
+    serialNumber: 1,
+    name: 1,
+    plant_count: 1,
+  });
+
+  res.status(200).json(farmsWithPlants);
+} catch (err) {
+    console.error(error);
+    return res.status(500).json({ error: "Failed to get farms data of the user." });
+}
+
+
+};
+
