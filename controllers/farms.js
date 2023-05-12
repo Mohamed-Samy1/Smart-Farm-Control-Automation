@@ -1,3 +1,4 @@
+const jwt = require("jsonwebtoken");
 
 const { Farm, Threshold } = require('../models/farm');
 const User = require('../models/user');
