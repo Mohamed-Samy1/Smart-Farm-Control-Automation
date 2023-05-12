@@ -3,8 +3,8 @@ const router = express.Router();
 
 const farmsController = require('../controllers/farms');
 
-// Add a new farm
-router.post('/', farmsController.addFarm);
+// Create a new farm
+router.post('/', farmsController.createNewFarm);
 
 // Add sensor thresholds
 router.post('/thresholds', farmsController.addSensorThresholds);
@@ -19,7 +19,7 @@ router.get('/getFarmBySerialNumber', farmsController.getFarmBySerialNumber);
 router.get('/', farmsController.getAllFarms);
 
 // Update a farm by ID
-router.put('updateFarmOfUser', farmsController.updateFarmOfUser);
+router.put('/updateFarmOfUser', farmsController.updateFarmOfUser);
 
 // Delete a farm by ID
 router.delete('/deleteFarmFromUser', farmsController.deleteFarmFromUser);
