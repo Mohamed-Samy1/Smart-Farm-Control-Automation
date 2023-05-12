@@ -4,6 +4,8 @@ const { Plant } = require('../models/plant');
 
 const { Farm } = require('../models/farm');
 
+const jwt = require('jsonwebtoken');
+
 // Add a new plant
 exports.addPlant = async (req, res) => {
   try {
@@ -274,7 +276,7 @@ exports.getPlantsAndHarvestDates = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: "User not found." });
     }
-    
+
     // Find the farm in the database by serialNumber
     const farm_serialNumber = req.body.serialNumber;
     const farm = await Farm.findOne({ serialNumber: farm_serialNumber }).populate('plants._id', 'name life_cycle');
