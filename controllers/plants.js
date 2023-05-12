@@ -1,11 +1,26 @@
+const { User } = require("../models/user");
 
-const Plant = require('../models/plant');
+const { Plant } = require('../models/plant');
 
-const Farm = require('../models/farm');
+const { Farm } = require('../models/farm');
 
 // Add a new plant
 exports.addPlant = async (req, res) => {
   try {
+    // Extract the JWT token from the Authorization header
+    const token = req.headers.authorization.split(' ')[1];
+
+    // Verify the JWT token and extract the user ID
+    const decodedToken = jwt.verify(token, process.env.secret);
+    const userId = decodedToken.id;
+
+    // Find the user in the database by ID
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+    
     const { name, life_cycle } = req.body;
     const plant = await Plant.create({ name, life_cycle });
     return res.status(201).json(plant);
@@ -18,6 +33,20 @@ exports.addPlant = async (req, res) => {
 // Delete a plant by ID
 exports.deletePlant = async (req, res) => {
   try {
+    // Extract the JWT token from the Authorization header
+    const token = req.headers.authorization.split(' ')[1];
+
+    // Verify the JWT token and extract the user ID
+    const decodedToken = jwt.verify(token, process.env.secret);
+    const userId = decodedToken.id;
+
+    // Find the user in the database by ID
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
     const plant = await Plant.findByIdAndDelete(req.params.id);
     if (!plant) {
       return res.status(404).json({ error: "Plant not found." });
@@ -32,6 +61,20 @@ exports.deletePlant = async (req, res) => {
 // Update a plant by ID
 exports.updatePlant = async (req, res) => {
   try {
+    // Extract the JWT token from the Authorization header
+    const token = req.headers.authorization.split(' ')[1];
+
+    // Verify the JWT token and extract the user ID
+    const decodedToken = jwt.verify(token, process.env.secret);
+    const userId = decodedToken.id;
+
+    // Find the user in the database by ID
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
     const { name, life_cycle } = req.body;
     const plant = await Plant.findByIdAndUpdate(
       req.params.id,
@@ -50,6 +93,20 @@ exports.updatePlant = async (req, res) => {
 
 exports.getPlantByFarmAndName = async (req, res) => {
   try {
+    // Extract the JWT token from the Authorization header
+    const token = req.headers.authorization.split(' ')[1];
+
+    // Verify the JWT token and extract the user ID
+    const decodedToken = jwt.verify(token, process.env.secret);
+    const userId = decodedToken.id;
+
+    // Find the user in the database by ID
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
     // Find the farm in the database by serialNumber
     const farm_serialNumber = req.body.serialNumber;
     const farm = await Farm.findOne({ serialNumber: farm_serialNumber }).populate('plants._id', 'name life_cycle');
@@ -85,6 +142,20 @@ exports.getPlantByFarmAndName = async (req, res) => {
 // ADD ENDPOINT TO GET ALL PLANTS (NAMES ONLY)
 exports.getAllPlantNames = async (req, res) => {
   try {
+    // Extract the JWT token from the Authorization header
+    const token = req.headers.authorization.split(' ')[1];
+
+    // Verify the JWT token and extract the user ID
+    const decodedToken = jwt.verify(token, process.env.secret);
+    const userId = decodedToken.id;
+
+    // Find the user in the database by ID
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
     const plantNames = await Plant.find({}, 'name');
 
     return res.status(200).json(plantNames);
@@ -98,6 +169,20 @@ exports.getAllPlantNames = async (req, res) => {
 
 exports.getAllPlantsByFarm = async (req, res) => {
   try {
+    // Extract the JWT token from the Authorization header
+    const token = req.headers.authorization.split(' ')[1];
+
+    // Verify the JWT token and extract the user ID
+    const decodedToken = jwt.verify(token, process.env.secret);
+    const userId = decodedToken.id;
+
+    // Find the user in the database by ID
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
     // Find the farm in the database by serialNumber
     const farm_serialNumber = req.body.serialNumber;
     const farm = await Farm.findOne({ serialNumber: farm_serialNumber }).populate('plants._id', 'name life_cycle');
@@ -124,6 +209,20 @@ exports.getAllPlantsByFarm = async (req, res) => {
 
 exports.addPlantToFarm = async (req, res) => {
   try {
+    // Extract the JWT token from the Authorization header
+    const token = req.headers.authorization.split(' ')[1];
+
+    // Verify the JWT token and extract the user ID
+    const decodedToken = jwt.verify(token, process.env.secret);
+    const userId = decodedToken.id;
+
+    // Find the user in the database by ID
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
     // Find the farm in the database by serialNumber
     const farm_serialNumber = req.body.serialNumber;
     const farm = await Farm.findOne({ serialNumber: farm_serialNumber });
@@ -162,6 +261,20 @@ exports.addPlantToFarm = async (req, res) => {
 // get an array of objects of plants (names), and harvest date of each plant in a specific farm
 exports.getPlantsAndHarvestDates = async (req, res) => {
   try {
+    // Extract the JWT token from the Authorization header
+    const token = req.headers.authorization.split(' ')[1];
+
+    // Verify the JWT token and extract the user ID
+    const decodedToken = jwt.verify(token, process.env.secret);
+    const userId = decodedToken.id;
+
+    // Find the user in the database by ID
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+    
     // Find the farm in the database by serialNumber
     const farm_serialNumber = req.body.serialNumber;
     const farm = await Farm.findOne({ serialNumber: farm_serialNumber }).populate('plants._id', 'name life_cycle');
