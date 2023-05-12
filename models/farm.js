@@ -1,5 +1,10 @@
 const mongoose = require("mongoose");
 
+///
+
+const bcrypt = require("bcryptjs");
+const { isEmail } = require("validator");
+
 const farmSchema = new mongoose.Schema({
   serialNumber: {
     type: String,
