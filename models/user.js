@@ -73,5 +73,9 @@ userSchema.statics.login = async function (email, password) {
   }
 };
 
+userSchema.statics.findById = async function (id) {
+  return await this.findOne({ _id: id }).populate("farms");
+};
+
 exports.User = mongoose.model("User", userSchema);
 exports.userSchema = userSchema;
