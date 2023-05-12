@@ -336,8 +336,6 @@ exports.getArrayOfFarmsWithInfoForUser = async (req, res) => {
 } catch (err) {
     console.error(error);
     return res.status(500).json({ error: "Failed to get farms data of the user." });
-}
-
-
+  }
 };
 
