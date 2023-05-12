@@ -28,6 +28,6 @@ router.delete('/deleteFarmFromUser', farmsController.deleteFarmFromUser);
 router.get('/getFarmsAndPlantsCount', farmsController.getFarmsAndPlantsCount);
 
 //Add Farm to user
-router.post('/addFarmToUser', farmsController.addFarmToUser);
+router.put('/addFarmToUser', farmsController.addFarmToUser);
 
 module.exports = router;
