@@ -287,6 +287,11 @@ exports.addFarmToUser = async (req, res) => {
       return res.status(400).json({ message: 'Farm already assigned to another user' });
     }
 
+    if (farm.user && farm.user.toString() === userId.toString()) {
+      // If the farm is already assigned to the current user, return an error
+      return res.status(400).json({ message: 'Farm already owned by user' });
+    }
+
     user.farms.push({
       farm: farm._id,
       user: userId
@@ -299,10 +304,10 @@ exports.addFarmToUser = async (req, res) => {
     await farm.save();
 
     res.status(200).json({ message: 'Farm added to user' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Internal server error' });
-  }
+      } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Internal server error' });
+      }
 };
 
 //GET ALL FARMS OF THE USER, ALSO INCLUDE THE COUNT OF EACH PLANT
