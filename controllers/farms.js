@@ -281,8 +281,9 @@ exports.addFarmToUser = async (req, res) => {
       return res.status(400).json({ message: 'Farm already assigned to another user' });
     }
 
-    if (user.farms.find(farm => farm.serialNumber === farm_serialNumber)) {
-      return res.status(400).json({ message: 'Farm already added to user' });
+    if (user.farms.some(farm => farm.serialNumber === farm_serialNumber)) {
+      // If the user already has a farm with the same serialNumber, return an error
+      return res.status(400).json({ message: 'User already owns this farm' });
     }
 
     farm.name = farm_name;
