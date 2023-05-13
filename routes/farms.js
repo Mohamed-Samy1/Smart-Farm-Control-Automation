@@ -30,4 +30,8 @@ router.get('/getFarmsAndPlantsCount', farmsController.getFarmsAndPlantsCount);
 //Add Farm to user
 router.put('/addFarmToUser', farmsController.addFarmToUser);
 
+// Take the user token, send back all his farms and names of this farms
+router.get('/getFarmsNamesAndSerialNumForUser', farmsController.getFarmsNamesAndSerialNumForUser);
+
+
 module.exports = router;

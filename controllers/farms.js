@@ -330,3 +330,35 @@ exports.getFarmsAndPlantsCount = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+// Take the user token, send back all his farms and names of this farms
+exports.getFarmsNamesAndSerialNumForUser = async (req, res) => {
+  try {
+    // Extract the JWT token from the Authorization header
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: "Authorization header missing." });
+    }
+
+    const token = authHeader.split(' ')[1];
+
+    // Verify the JWT token and extract the user ID
+    const decodedToken = jwt.verify(token, process.env.secret);
+    const userId = decodedToken.id;
+
+    // Find the user in the database by ID
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    // Find all the farms that belong to the user
+    const farms = await Farm.find({ _id: { $in: user.farms.map(f => f.farm) } }, { serialNumber: 1, name: 1 });
+
+    return res.status(200).json({ farms });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Failed to get farms." });
+  }
+};

@@ -26,6 +26,7 @@ router.get('/getAllPlantNames', plantsController.getAllPlantNames);
 // getAllPlantsByFarm
 router.get('/getAllPlantsByFarm', plantsController.getAllPlantsByFarm);
 
+
 /* 
 Get an array of objects that has the following:
 1) serialNumber of each farm the user has

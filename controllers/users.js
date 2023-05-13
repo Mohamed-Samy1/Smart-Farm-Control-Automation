@@ -53,22 +53,18 @@ exports.register = async (req, res) => {
       country 
     } = req.body;
 
-    // Check if password and confirmPassword are the same
     if (password !== confirmPassword) {
       return res.status(400).json({ error: 'Password and confirm password do not match' });
     }
 
-    // Check if user with this email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ error: 'User with this email already exists' });
     }
 
-    // Create new user and save to database
     const user = new User({ firstName, lastName, email, password, phone, country });
     const savedUser = await user.save();
 
-    // Create a JWT and send in response
     const token = createJWT(savedUser._id);
     res.status(201).json({ token });
   } catch (err) {
