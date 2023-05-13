@@ -172,7 +172,12 @@ exports.getAllPlantNames = async (req, res) => {
 exports.getAllPlantsByFarm = async (req, res) => {
   try {
     // Extract the JWT token from the Authorization header
-    const token = req.headers.authorization.split(' ')[1];
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: "Authorization header missing." });
+    }
+
+    const token = authHeader.split(' ')[1];
 
     // Verify the JWT token and extract the user ID
     const decodedToken = jwt.verify(token, process.env.secret);

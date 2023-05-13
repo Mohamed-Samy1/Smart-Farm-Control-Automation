@@ -24,7 +24,7 @@ router.get('/getPlantsAndHarvestDates', plantsController.getPlantsAndHarvestDate
 router.get('/getAllPlantNames', plantsController.getAllPlantNames);
 
 // getAllPlantsByFarm
-router.get('/getAllPlantsByFarm', plantsController.getAllPlantsByFarm);
+router.post('/getAllPlantsByFarm', plantsController.getAllPlantsByFarm);
 
 
 /* 
