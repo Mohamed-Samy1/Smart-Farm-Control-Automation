@@ -276,20 +276,27 @@ exports.addFarmToUser = async (req, res) => {
       return res.status(404).json({ message: 'Farm not found' });
     }
 
+    const farmIndex = user.farms.findIndex(f => f.farm.toString() === farm._id.toString());
+    if (farmIndex !== -1) {
+      // If the user already has the farm, return an error
+      return res.status(400).json({ message: 'Farm already added to user' });
+    }
+
     if (farm.user && farm.user.toString() !== userId.toString()) {
       // If the farm already has a user assigned to it, and it's not the current user, return an error
       return res.status(400).json({ message: 'Farm already assigned to another user' });
     }
 
-    if (user.farms.some(farm => farm.serialNumber === farm_serialNumber)) {
-      // If the user already has a farm with the same serialNumber, return an error
-      return res.status(400).json({ message: 'User already owns this farm' });
-    }
+    user.farms.push({
+      farm: farm._id,
+      user: userId
+    });
 
+    farm.user = userId;
     farm.name = farm_name;
-    user.farms.push({ _id: farm._id });
-    
+
     await user.save();
+    await farm.save();
 
     res.status(200).json({ message: 'Farm added to user' });
   } catch (err) {

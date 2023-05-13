@@ -36,13 +36,17 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  farms: [ 
+  farms: [
     {
-      _id: {
+      farm: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Farm'
+      },
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
       }
-    } 
+    }
   ],
   //Not required and used only when reset is requested
   resetToken: String,
