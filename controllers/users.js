@@ -42,26 +42,38 @@ const alertError = (err) => {
 
 //USER REGISTRATION
 exports.register = async (req, res) => {
-  if (req.body.password === req.body.confirmPassword) {
-    let user = new User({
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      email: req.body.email,
-      password: req.body.password,
-      phone: req.body.phone,
-      country: req.body.country
-    });
-    user = await user.save();
+  try {
+    const { 
+      firstName, 
+      lastName, 
+      email, 
+      password, 
+      confirmPassword, 
+      phone, 
+      country 
+    } = req.body;
 
-    // Create a cookie name as jwt and contain token that expires after 1 day
-    // In cookies, expiration date is calculated by milliseconds
-    const token = createJWT(user._id);
+    // Check if password and confirmPassword are the same
+    if (password !== confirmPassword) {
+      return res.status(400).json({ error: 'Password and confirm password do not match' });
+    }
 
-    if (!user) return res.status(400).send("the user cannot be created!");
+    // Check if user with this email already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: 'User with this email already exists' });
+    }
 
+    // Create new user and save to database
+    const user = new User({ firstName, lastName, email, password, phone, country });
+    const savedUser = await user.save();
+
+    // Create a JWT and send in response
+    const token = createJWT(savedUser._id);
     res.status(201).json({ token });
-  } else {
-    return res.status(400).send("The two fields of passwords should be the same");
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
