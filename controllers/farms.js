@@ -332,7 +332,7 @@ exports.getFarmsAndPlantsCount = async (req, res) => {
 };
 
 // Take the user token, send back all his farms and names of this farms
-exports.getFarmsNamesAndSerialNumForUser = async (req, res) => {
+exports.getEverythingAboutUserFarms = async (req, res) => {
   try {
     // Extract the JWT token from the Authorization header
     const authHeader = req.headers.authorization;
@@ -353,9 +353,15 @@ exports.getFarmsNamesAndSerialNumForUser = async (req, res) => {
       return res.status(404).json({ error: "User not found." });
     }
 
-    // Find all the farms that belong to the user
-    const farms = await Farm.find({ _id: { $in: user.farms.map(f => f.farm) } }, { serialNumber: 1, name: 1 });
-    
+    // Find all the farms that belong to the user and populate the plants field
+    const farms = await Farm.find({ _id: { $in: user.farms.map(f => f.farm) } })
+      .populate({
+        path: 'plants._id',
+        select: 'name'
+      })
+      .select('serialNumber name plants');
+
+    // Add the farms_count field to the JSON response
     const farms_count = user.farms.length;
     const response = { farms, farms_count };
 
