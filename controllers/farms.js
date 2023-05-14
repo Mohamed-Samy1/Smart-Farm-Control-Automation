@@ -355,8 +355,11 @@ exports.getFarmsNamesAndSerialNumForUser = async (req, res) => {
 
     // Find all the farms that belong to the user
     const farms = await Farm.find({ _id: { $in: user.farms.map(f => f.farm) } }, { serialNumber: 1, name: 1 });
+    
+    const farms_count = user.farms.length;
+    const response = { farms, farms_count };
 
-    return res.status(200).json({ farms });
+    return res.status(200).json(response);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Failed to get farms." });

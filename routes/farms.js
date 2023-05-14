@@ -30,7 +30,7 @@ router.get('/getFarmsAndPlantsCount', farmsController.getFarmsAndPlantsCount);
 //Add Farm to user
 router.put('/addFarmToUser', farmsController.addFarmToUser);
 
-// Take the user token, send back all his farms and names of this farms
+// Take the user token, send back all his farms, names of this farms, plants included in those farms
 router.get('/getFarmsNamesAndSerialNumForUser', farmsController.getFarmsNamesAndSerialNumForUser);
 
 
