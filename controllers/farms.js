@@ -361,9 +361,25 @@ exports.getEverythingAboutUserFarms = async (req, res) => {
       })
       .select('serialNumber name plants');
 
+    // Map the plants array to only include the name and plant_count fields
+    const mappedFarms = farms.map(farm => {
+      const mappedPlants = farm.plants.map(plant => {
+        return {
+          name: plant._id.name,
+          plant_count: plant.plant_count
+        };
+      });
+      return {
+        _id: farm._id,
+        serialNumber: farm.serialNumber,
+        name: farm.name,
+        plants: mappedPlants
+      };
+    });
+
     // Add the farms_count field to the JSON response
     const farms_count = user.farms.length;
-    const response = { farms, farms_count };
+    const response = { farms: mappedFarms, farms_count };
 
     return res.status(200).json(response);
   } catch (error) {
