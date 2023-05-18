@@ -312,17 +312,9 @@ exports.addFarmToUser = async (req, res) => {
 exports.getFarmsAndPlantsCount = async (req, res) => {
   try {
     
-    // Extract the JWT token from the Authorization header
-    const token = req.headers.authorization.split(' ')[1];
+    const user = await getAuthenticatedUser(req);
 
-    // Verify the JWT token and extract the user ID
-    const decodedToken = jwt.verify(token, process.env.secret);
-    const userId = decodedToken.id;
-
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
+    const userId = user._id;
 
     const farms = await Farm.find({ user_id: userId })
                              .select('name plants.plant_count');
