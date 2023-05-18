@@ -153,11 +153,20 @@ exports.getFarmBySerialNumber = async (req, res) => {
 // Get all farms
 exports.getAllFarms = async (req, res) => {
   try {
+    // Extract the JWT token from the Authorization header
+    const token = req.headers.authorization.split(' ')[1];
 
-    const user = await getAuthenticatedUser(req);
+    // Verify the JWT token and extract the user ID
+    const decodedToken = jwt.verify(token, process.env.secret);
+    const userId = decodedToken.id;
 
+    // Find the user in the database by ID
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
     const farms = await Farm.find().populate('plants._id', 'name life_cycle');
-
     return res.status(200).json(farms);
   } catch (error) {
     console.error(error);
