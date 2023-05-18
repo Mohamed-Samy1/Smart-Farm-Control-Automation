@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 const { Farm, Threshold } = require('../models/farm');
 const { User } = require("../models/user");
 
+const { getAuthenticatedUser } = require('../utils/auth');
+
 // Add sensor thresholds
 exports.addSensorThresholds = async (req, res) => {
   try {
@@ -334,24 +336,8 @@ exports.getFarmsAndPlantsCount = async (req, res) => {
 // Take the user token, send back all his farms and names of this farms
 exports.getEverythingAboutUserFarms = async (req, res) => {
   try {
-    // Extract the JWT token from the Authorization header
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      return res.status(401).json({ error: "Authorization header missing." });
-    }
-
-    const token = authHeader.split(' ')[1];
-
-    // Verify the JWT token and extract the user ID
-    const decodedToken = jwt.verify(token, process.env.secret);
-    const userId = decodedToken.id;
-
-    // Find the user in the database by ID
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found." });
-    }
+    
+    const user = await getAuthenticatedUser(req);
 
     // Find all the farms that belong to the user and populate the plants field
     const farms = await Farm.find({ _id: { $in: user.farms.map(f => f.farm) } })
