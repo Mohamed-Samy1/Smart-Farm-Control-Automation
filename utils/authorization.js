@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/user');
+const { User } = require("../models/user");
 
 const getAuthenticatedUser = async (req) => {
   // Extract the JWT token from the Authorization header
@@ -16,7 +16,7 @@ const getAuthenticatedUser = async (req) => {
   if (!decodedToken) {
     throw new Error("Unauthorized user.");
   }
-  
+
   const userId = decodedToken.id;
 
   // Find the user in the database by ID
