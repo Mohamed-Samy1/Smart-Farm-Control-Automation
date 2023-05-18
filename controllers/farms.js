@@ -156,10 +156,6 @@ exports.getAllFarms = async (req, res) => {
 
     const user = await getAuthenticatedUser(req);
 
-    if (!user) {
-      throw new Error("User not found.");
-    }
-
     const farms = await Farm.find().populate('plants._id', 'name life_cycle');
 
     return res.status(200).json(farms);
