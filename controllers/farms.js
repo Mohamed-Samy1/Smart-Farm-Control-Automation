@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const { Farm, Threshold } = require('../models/farm');
 const { User } = require("../models/user");
 
-const { getAuthenticatedUser } = require('../utils/auth');
+const { getAuthenticatedUser } = require('../utils/authorization');
 
 // Add sensor thresholds
 exports.addSensorThresholds = async (req, res) => {
