@@ -8,19 +8,7 @@ const { getAuthenticatedUser } = require('../utils/authorization');
 // Add sensor thresholds
 exports.addSensorThresholds = async (req, res) => {
   try {
-    // Extract the JWT token from the Authorization header
-    const token = req.headers.authorization.split(' ')[1];
-
-    // Verify the JWT token and extract the user ID
-    const decodedToken = jwt.verify(token, process.env.secret);
-    const userId = decodedToken.id;
-
-    // Find the user in the database by ID
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found." });
-    }
+    const user = await getAuthenticatedUser(req);
 
     const { farm_id, sensorType, threshold_min, threshold_max } = req.body;
     
@@ -47,19 +35,7 @@ exports.addSensorThresholds = async (req, res) => {
 // Update sensor thresholds by sensor type
 exports.updateSensorThresholds = async (req, res) => {
   try {
-    // Extract the JWT token from the Authorization header
-    const token = req.headers.authorization.split(' ')[1];
-
-    // Verify the JWT token and extract the user ID
-    const decodedToken = jwt.verify(token, process.env.secret);
-    const userId = decodedToken.id;
-
-    // Find the user in the database by ID
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found." });
-    }
+    const user = await getAuthenticatedUser(req);
 
     const { farm_id, sensorType, threshold_min, threshold_max } = req.body;
 
@@ -94,19 +70,7 @@ exports.updateSensorThresholds = async (req, res) => {
 // Add a new farm
 exports.createNewFarm = async (req, res) => {
   try {
-    // Extract the JWT token from the Authorization header
-    const token = req.headers.authorization.split(' ')[1];
-
-    // Verify the JWT token and extract the user ID
-    const decodedToken = jwt.verify(token, process.env.secret);
-    const userId = decodedToken.id;
-
-    // Find the user in the database by ID
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found." });
-    }
+    const user = await getAuthenticatedUser(req);
 
     const farm = new Farm({
       serialNumber: req.body.serialNumber,
@@ -124,19 +88,7 @@ exports.createNewFarm = async (req, res) => {
 
 exports.getFarmBySerialNumber = async (req, res) => {
   try {
-    // Extract the JWT token from the Authorization header
-    const token = req.headers.authorization.split(' ')[1];
-
-    // Verify the JWT token and extract the user ID
-    const decodedToken = jwt.verify(token, process.env.secret);
-    const userId = decodedToken.id;
-
-    // Find the user in the database by ID
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found." });
-    }
+    const user = await getAuthenticatedUser(req);
 
     const farm_serialNumber = req.body.serialNumber;
     const farm = await Farm.findOne({ serialNumber: farm_serialNumber }).populate('plants._id', 'name life_cycle');
@@ -150,22 +102,11 @@ exports.getFarmBySerialNumber = async (req, res) => {
   }
 };
 
-// Get all farms
+// Get all farms [ In General ]
 exports.getAllFarms = async (req, res) => {
   try {
-    // Extract the JWT token from the Authorization header
-    const token = req.headers.authorization.split(' ')[1];
+    const user = await getAuthenticatedUser(req);
 
-    // Verify the JWT token and extract the user ID
-    const decodedToken = jwt.verify(token, process.env.secret);
-    const userId = decodedToken.id;
-
-    // Find the user in the database by ID
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found." });
-    }
     const farms = await Farm.find().populate('plants._id', 'name life_cycle');
     return res.status(200).json(farms);
   } catch (error) {
@@ -176,19 +117,8 @@ exports.getAllFarms = async (req, res) => {
 
 exports.updateFarmOfUser = async (req, res) => {
   try {
-    // Extract the JWT token from the Authorization header
-    const token = req.headers.authorization.split(' ')[1];
-
-    // Verify the JWT token and extract the user ID
-    const decodedToken = jwt.verify(token, process.env.secret);
-    const userId = decodedToken.id;
-
-    // Find the user in the database by ID
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found." });
-    }
+    
+    const user = await getAuthenticatedUser(req);
 
     // Find the farm in the user's farms array by serialNumber
     const farm_serialNumber = req.body.serialNumber;
@@ -215,19 +145,7 @@ exports.updateFarmOfUser = async (req, res) => {
 
 exports.deleteFarmFromUser = async (req, res) => {
   try {
-    // Extract the JWT token from the Authorization header
-    const token = req.headers.authorization.split(' ')[1];
-
-    // Verify the JWT token and extract the user ID
-    const decodedToken = jwt.verify(token, process.env.secret);
-    const userId = decodedToken.id;
-
-    // Find the user in the database by ID
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found." });
-    }
+    const user = await getAuthenticatedUser(req);
 
     // Find the farm in the user's farms array by serialNumber
     const farm_serialNumber = req.body.serialNumber;
@@ -294,22 +212,6 @@ exports.addFarmToUser = async (req, res) => {
       }
 };
 
-//GET ALL FARMS OF THE USER, ALSO INCLUDE THE COUNT OF EACH PLANT
-exports.getFarmsAndPlantsCount = async (req, res) => {
-  try {
-    
-    const user = await getAuthenticatedUser(req);
-
-    const userId = user._id;
-
-    const farms = await Farm.find({ user_id: userId })
-                             .select('name plants.plant_count');
-    res.status(200).json({ farms });
-  } catch(err) {
-    console.error(err);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
 
 // Take the user token, send back all his farms and names of this farms
 exports.getEverythingAboutUserFarms = async (req, res) => {
