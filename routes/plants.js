@@ -12,7 +12,7 @@ router.delete('/:id', plantsController.deletePlant);
 router.put('/:id', plantsController.updatePlant);
 
 // Get a plant by ID
-router.get('/getPlantByFarmAndName', plantsController.getPlantByFarmAndName);
+router.post('/getPlantByFarmAndName', plantsController.getPlantByFarmAndName);
 
 // Add plant to user farm
 router.post('/addPlantToFarm', plantsController.addPlantToFarm);

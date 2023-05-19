@@ -67,7 +67,7 @@ exports.updateSensorThresholds = async (req, res) => {
   }
 };
 
-// Add a new farm
+// Create a new farm
 exports.createNewFarm = async (req, res) => {
   try {
     const user = await getAuthenticatedUser(req);
