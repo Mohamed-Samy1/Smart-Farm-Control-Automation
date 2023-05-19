@@ -3,6 +3,8 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
 const { User } = require("../models/user");
+const { getAuthenticatedUser } = require('../utils/authorization');
+const { threadId } = require("worker_threads");
 
 const maxAge = 24 * 60 * 60;
 
@@ -97,12 +99,19 @@ exports.logout = (req, res) => {
 
 //Getting the list of all users
 exports.getAllUsers = async (req, res) => {
-  const userList = await User.find().select("-password");
+  try{
+    const user = await getAuthenticatedUser(req);
+  
+    const userList = await User.find().select("-password");
 
-  if (!userList) {
-    return res.status(500).json({ success: false });
+    if (!userList) {
+      return res.status(500).json({ success: false });
+    }
+    res.status(200).send(userList);
+  } catch(e) {
+    return res.status(401).json({ error: 'Authentication failed' });
   }
-  res.status(200).send(userList);
+  
 };
 
 //GETTING A SPECIFIC USER
@@ -131,17 +140,7 @@ exports.getUser = async (req, res) => {
 //UPDATE AN EXISTING USER
 exports.updateUser = async (req, res) => {
   try {
-    // Extract the JWT token from the Authorization header
-    const token = req.headers.authorization.split(' ')[1];
-
-    // Verify the JWT token and extract the user ID
-    const decodedToken = jwt.verify(token, process.env.secret);
-    const userId = decodedToken.id;
-
-    const userExist = await User.findById(userId);
-    if (!userExist) {
-      return res.status(404).json({ message: "The user with the given ID was not found." });
-    }
+    const user = await getAuthenticatedUser(req);
 
     let newPassword;
     if (req.body.password) {
@@ -150,8 +149,8 @@ exports.updateUser = async (req, res) => {
       newPassword = userExist.password;
     }
 
-    const user = await User.findByIdAndUpdate(
-      userId,
+    user = await User.findByIdAndUpdate(
+      user._id,
       {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
@@ -178,14 +177,9 @@ exports.updateUser = async (req, res) => {
 //DELETE AN EXISTING USER
 exports.deleteUser = async (req, res) => {
   try {
-    // Extract the JWT token from the Authorization header
-    const token = req.headers.authorization.split(' ')[1];
+    const user = await getAuthenticatedUser(req);
 
-    // Verify the JWT token and extract the user ID
-    const decodedToken = jwt.verify(token, process.env.secret);
-    const userId = decodedToken.id;
-
-    const deletedUser = await User.findByIdAndRemove(userId);
+    const deletedUser = await User.findByIdAndRemove(user._id);
     if (deletedUser) {
       return res.status(200).json({ success: true, message: "the user is deleted!" });
     } else {
@@ -193,82 +187,6 @@ exports.deleteUser = async (req, res) => {
     }
   } catch (e) {
     return res.status(500).json({ success: false, error: e });
-  }
-};
-
-//ADD FARM TO THE USER
-exports.addFarmToUser = async (req, res) => {
-  try {
-    // Extract the JWT token from the Authorization header
-    const token = req.headers.authorization.split(' ')[1];
-
-    // Verify the JWT token and extract the user ID
-    const decodedToken = jwt.verify(token, process.env.secret);
-    const userId = decodedToken.id;
-
-    const userExist = await User.findById(userId);
-    if (!userExist) {
-      return res.status(404).json({ message: "The user with the given ID was not found." });
-    }
-
-    //Get the request body for the farm and add it to the user
-    const newFarm = {
-      "serialNumber": req.body.serialNumber,
-    };  
-
-    //Update the user with the new farm
-    const updatedUser = await User.findOneAndUpdate(
-      { _id: userId },
-      { $push: { farms: newFarm } },
-      { new: true }
-    );
-
-    if (!updatedUser) {
-      return res.status(400).send("This farm cannot be added!");
-    }
-
-    res.status(201).json({ farmAdded: newFarm, message: "Farm was added successfully." });
-  } catch (e) {
-    res.status(401).json({ error: 'Authentication failed' });
-  }
-};
-
-//REMOVE A FARM FROM THE USER FARMS
-exports.RemoveFarmFromUser = async (req, res) => {
-  try {
-    // Extract the JWT token from the Authorization header
-    const token = req.headers.authorization.split(' ')[1];
-
-    // Verify the JWT token and extract the user ID
-    const decodedToken = jwt.verify(token, process.env.secret);
-    const userId = decodedToken.id;
-
-    const userExist = await User.findById(userId);
-    if (!userExist) {
-      return res.status(404).json({ message: "The user with the given ID was not found." });
-    }
-
-    if (!req.body.serialNumber) { 
-      return res.status(400).send("The farm's serial number must be provided!");
-    }
-
-    let userFarms = userExist.farms;
-    const farmExist = userFarms.find(f => f.serialNumber === req.body.serialNumber);
-    if (!farmExist) {
-      return res.status(404).send("This farm serial number was not found!");
-    }
-
-    //Delete the farm from the user
-    userFarms = userFarms.filter(f => f.serialNumber !== req.body.serialNumber);
-    const updatedUser = await User.findOneAndUpdate({ _id: userId }, { farms: userFarms }, { new: true });
-
-    if (!updatedUser) {
-      return res.status(400).send("This farm cannot be removed!");
-    }
-
-    res.status(200).json({ message: "Farm was removed successfully." });
-  } catch (e) {
-    res.status(401).json({ error: 'Authentication failed' });
   }
 };
 

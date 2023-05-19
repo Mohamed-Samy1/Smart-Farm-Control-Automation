@@ -18,12 +18,6 @@ router.get("/getUser", usersController.getUser);
 //Update an existing user
 router.put("/updateUser", usersController.updateUser);
 
-//Add Farm to user
-router.put("/addFarmToUser", usersController.addFarmToUser);
-
-//Delete farm from user
-router.put("/RemoveFarmFromUser", usersController.RemoveFarmFromUser);
-
 //Delete an existing user
 router.delete("/deleteUser", usersController.deleteUser);
 
