@@ -71,24 +71,30 @@ exports.register = async (req, res) => {
     res.status(201).json({ token });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Registration failed.' });
   }
 };
 
 //USER LOGIN
 exports.login = async (req, res) => {
-  const user = await User.findOne({ email: req.body.email });
+  try {
+    const user = await User.findOne({ email: req.body.email });
 
-  if (!user) {
-    return res.status(404).send("The user was not found!");
-  }
+    if (!user) {
+      return res.status(404).send("The user was not found!");
+    }
 
-  if (user && bcrypt.compareSync(req.body.password, user.password)) {
-    const token = createJWT(user._id);
-    res.status(200).json({ token });
-  } else {
-    return res.status(400).send("Password is wrong!");
+    if (user && bcrypt.compareSync(req.body.password, user.password)) {
+      const token = createJWT(user._id);
+      res.status(200).json({ token });
+    } else {
+      return res.status(400).send("Wrong Password.");
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Login failed.' });
   }
+  
 };
 
 //USER LOGOUT
