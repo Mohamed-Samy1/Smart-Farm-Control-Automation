@@ -1,5 +1,4 @@
 
-
 const { Alert } = require('../models/alert');
 
 // Add alert with farm ID

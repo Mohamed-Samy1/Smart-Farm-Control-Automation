@@ -82,7 +82,7 @@ exports.createNewFarm = async (req, res) => {
     res.json({ message: 'Farm created successfully', farm });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -122,21 +122,20 @@ exports.updateFarmOfUser = async (req, res) => {
 
     // Find the farm in the user's farms array by serialNumber
     const farm_serialNumber = req.body.serialNumber;
-    const farmIndex = user.farms.findIndex(farm => farm.serialNumber === farm_serialNumber);
+    const farm = user.farms.find(farm => farm.serialNumber === farm_serialNumber);
 
-    if (farmIndex === -1) {
+    if (!farm) {
       return res.status(404).json({ error: "Farm not found." });
     }
 
-    // Update the farm in the user's farms array and save the user
-    const farm = user.farms[farmIndex];
+    // Update the farm
     farm.type = req.body.type;
     farm.sensors = req.body.sensors;
     farm.plants = req.body.plants;
     farm.isDisabled = req.body.isDisabled;
     await user.save();
 
-    return res.status(200).json(farm);
+    return res.status(200).json({ message: "Farm updated successfully." });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Failed to update farm." });
@@ -179,19 +178,19 @@ exports.addFarmToUser = async (req, res) => {
 
     const farm = await Farm.findOne({ serialNumber: farm_serialNumber });
     if (!farm) {
-      return res.status(404).json({ message: 'Farm not found' });
+      return res.status(404).json({ error: 'Farm not found' });
     }
 
     // Check if the farm is already owned by another user
     const otherUser = await User.findOne({ 'farms.farm': farm._id, '_id': { $ne: user._id } });
     if (otherUser) {
-      return res.status(400).json({ message: 'Farm already assigned to another user' });
+      return res.status(400).json({ error: 'Farm already assigned to another user' });
     }
 
     // Check if the farm is already owned by the current user
     const farmIndex = user.farms.findIndex(f => f.farm.toString() === farm._id.toString());
     if (farmIndex !== -1) {
-      return res.status(400).json({ message: 'Farm already added to user' });
+      return res.status(400).json({ error: 'Farm already added to user' });
     }
 
     user.farms.push({
@@ -208,7 +207,7 @@ exports.addFarmToUser = async (req, res) => {
     res.status(200).json({ message: 'Farm added to user' });
       } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Internal server error' });
+        res.status(500).json({ error: 'Internal server error' });
       }
 };
 

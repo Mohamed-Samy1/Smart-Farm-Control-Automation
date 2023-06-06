@@ -21,23 +21,3 @@ router.get('/acknowledged', alertController.getAcknowledgedAlerts);
 router.delete('/:id', alertController.deleteAlertById);
 
 module.exports = router;
-
-
-/*
-
-1-  Login                                                                                                 DONE
-2-  Register                                                                                              DONE
-3-  endpoint <---- Array of objects of all farms of the user includes  (name, number of plants)           DONE
-4-  Add Farm ----> farm name, farm type, serial number                                                    DONE 
-6-  endpoint <---- All sensors data of the farm (by farm serial number from body)                         DONE
-7-  endpoint <---- Object of name of the plant, and harvest date                                          DONE 
-8-  Add Plant to farm (farm ID and plant ID)                                                              DONE
-
-
---------------------------------------
-
-1) get user ---> recieve token instead of user ID in params.                                              DONE
-2) change all function to recieve tokens instead of user ID in params                                     DONE
-3) User will add the name of the farm after purchase                                                      DONE  
-4) Modify plants controller
-*/
