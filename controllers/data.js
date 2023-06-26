@@ -17,7 +17,7 @@ exports.getAllData = async (req, res) => {
     res.status(200).json(data);
   } catch (error) {
     console.error("Error fetching data:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Could not get the data, please check if you passed the correct token" });
   }
 };
 
