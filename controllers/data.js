@@ -1,130 +1,55 @@
-const { Data } = require('../models/data');
-const moment = require('moment');
+const { Data } = require("../models/data");
+const { Farm } = require("../models/farm");
 
-// Add Data
-exports.addData = async (req, res) => {
-  try {
-    const { 
-      waterTemp, 
-      environmentTemp, 
-      phSensor, 
-      waterLevel, 
-      uvIndex, 
-      co2, 
-      humidity, 
-      lightSensor
-    } = req.body;
+const { getAuthenticatedUser } = require("../utils/authorization");
 
-    const data = await Data.create(
-      { 
-        farm_id: req.params.farm_id, 
-        waterTemp, 
-        environmentTemp, 
-        phSensor, 
-        waterLevel, 
-        uvIndex, 
-        co2, 
-        humidity, 
-        lightSensor 
-      });
-      
-    return res.status(201).json(data);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Failed to add data." });
-  }
-};
+const moment = require("moment");
 
 // Get all data
 exports.getAllData = async (req, res) => {
   try {
-    const data = await Data.find().populate('farm_id', 'serialNumber');
-    return res.status(200).json(data);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Failed to get data." });
-  }
-};
+    const user = await getAuthenticatedUser(req);
 
-// Delete data by ID
-exports.deleteDataById = async (req, res) => {
-  try {
-    const data = await Data.findByIdAndDelete(req.params.id);
-    if (!data) {
-      return res.status(404).json({ error: "Data not found." });
-    }
-    return res.status(200).json({ message: "Data deleted successfully." });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Failed to delete data." });
-  }
-};
+    // Find all the documents in the Data collection
+    const data = await Data.find();
 
-// Get data of last day
-exports.getDataLastDay = async (req, res) => {
-  try {
-    const data = await Data.find({
-      createdAt: {
-        $gte: moment().subtract(1, 'day').toDate(),
-        $lte: moment().toDate()
-      }
-    }).populate('farm_id', 'serialNumber');
-    return res.status(200).json(data);
+    // Return the data as a JSON response
+    res.status(200).json(data);
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Failed to get data." });
-  }
-};
-
-// Get data of last week
-exports.getDataLastWeek = async (req, res) => {
-  try {
-    const data = await Data.find({
-      createdAt: {
-        $gte: moment().subtract(1, 'week').toDate(),
-        $lte: moment().toDate()
-      }
-    }).populate('farm_id', 'serialNumber');
-    return res.status(200).json(data);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Failed to get data." });
-  }
-};
-
-// Get data of last month
-exports.getDataLastMonth = async (req, res) => {
-  try {
-    const data = await Data.find({
-      createdAt: {
-        $gte: moment().subtract(1, 'month').toDate(),
-        $lte: moment().toDate()
-      }
-    }).populate('farm_id', 'serialNumber');
-    return res.status(200).json(data);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Failed to get data." });
+    console.error("Error fetching data:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
 // Get all data of a specific farm
-exports.getFarmAllSensorData = async (req, res) => {
+exports.getFarmData = async (req, res) => {
   try {
-    const farmSerialNumber = req.body.serialNumber;
+    // Authenticate the user
+    const user = await getAuthenticatedUser(req);
 
-    const farmData = await Data.findOne({ serialNumber: farmSerialNumber })
-      .sort({ createdAt: -1 })
-      .limit(1)
-      .populate('farm_id', 'serialNumber name type');
+    // Get the serialNumber from the request body
+    const { serialNumber } = req.body;
 
-    if (!farmData) {
-      return res.status(404).json({ message: 'Farm data not found' });
+    // Find the farm with the provided serialNumber
+    const farm = await Farm.findOne({ serialNumber });
+
+    // Check if the farm exists and belongs to the authenticated user
+    if (
+      !farm ||
+      !user.farms.some((f) => f.farm.toString() === farm._id.toString())
+    ) {
+      return res
+        .status(404)
+        .json({ message: "Farm with this serialNumber was not found." });
     }
 
-    res.status(200).json({ sensorData: farmData.sensors });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Internal server error' });
+    // Find the data documents associated with the farm
+    const data = await Data.find({ farmID: farm._id });
+
+    // Send the data documents as the response
+    res.status(200).json(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "An error occurred retreiving the farm data." });
   }
 };

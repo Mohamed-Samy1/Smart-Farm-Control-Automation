@@ -4,6 +4,7 @@ const crypto = require("crypto");
 
 const { User } = require("../models/user");
 const { getAuthenticatedUser } = require('../utils/authorization');
+//The next line needs to be checked
 const { threadId } = require("worker_threads");
 
 const maxAge = 24 * 60 * 60;
@@ -187,9 +188,13 @@ exports.deleteUser = async (req, res) => {
 
     const deletedUser = await User.findByIdAndRemove(user._id);
     if (deletedUser) {
-      return res.status(200).json({ success: true, message: "the user is deleted!" });
+      return res
+      .status(200)
+      .json({ success: true, message: "the user is deleted!" });
     } else {
-      return res.status(404).json({ success: false, message: "user not found!" });
+      return res
+      .status(404)
+      .json({ success: false, message: "user not found!" });
     }
   } catch (e) {
     return res.status(500).json({ success: false, error: e });

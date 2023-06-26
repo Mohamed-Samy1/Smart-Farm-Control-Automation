@@ -8,6 +8,8 @@ const morgan = require('morgan');
 dotenv.config();
 
 const errorHandler = require('./utils/error-handler');
+const { initializeMQTT } = require('./services/mqtt');
+
 
 //Middlewares
 app.use(express.json());
@@ -51,7 +53,11 @@ mongoose
       useNewUrlParser: true, 
       useUnifiedTopology: true 
     })
-  .then(() => console.log("Database was connected successfuly!"))
+  .then(() => {
+    console.log("Database was connected successfully!");
+    // Initialize MQTT after the database connection is established
+    initializeMQTT();
+  })
   .catch((err) => console.log(err));
 
   //Server running

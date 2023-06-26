@@ -5,68 +5,6 @@ const { User } = require("../models/user");
 
 const { getAuthenticatedUser } = require('../utils/authorization');
 
-// Add sensor thresholds
-exports.addSensorThresholds = async (req, res) => {
-  try {
-    const user = await getAuthenticatedUser(req);
-
-    const { farm_id, sensorType, threshold_min, threshold_max } = req.body;
-    
-    // Check if the farm exists
-    const farm = await Farm.findById(farm_id);
-    if (!farm) {
-      return res.status(404).json({ error: "Farm not found." });
-    }
-    
-    // Create the threshold object
-    const threshold = await Threshold.create({ sensorType, threshold_min, threshold_max });
-    
-    // Add the threshold object to the farm's sensors object
-    farm.sensors[sensorType] = threshold._id;
-    await farm.save();
-    
-    return res.status(201).json(threshold);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Failed to add sensor thresholds." });
-  }
-};
-
-// Update sensor thresholds by sensor type
-exports.updateSensorThresholds = async (req, res) => {
-  try {
-    const user = await getAuthenticatedUser(req);
-
-    const { farm_id, sensorType, threshold_min, threshold_max } = req.body;
-
-    // Check if the farm exists
-    const farm = await Farm.findById(farm_id);
-    if (!farm) {
-      return res.status(404).json({ error: "Farm not found." });
-    }
-
-    // Check if the sensor type exists in the farm's sensors object
-    if (!farm.sensors[sensorType]) {
-      return res.status(404).json({ error: "Sensor type not found." });
-    }
-
-    // Find the threshold object and update its values
-    const threshold = await Threshold.findByIdAndUpdate(
-      farm.sensors[sensorType], 
-      { threshold_min, threshold_max }, 
-      { new: true }
-    );
-    if (!threshold) {
-      return res.status(404).json({ error: "Threshold not found." });
-    }
-
-    return res.status(200).json(threshold);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: "Failed to update sensor thresholds." });
-  }
-};
-
 // Create a new farm
 exports.createNewFarm = async (req, res) => {
   try {
