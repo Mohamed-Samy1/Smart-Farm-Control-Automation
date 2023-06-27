@@ -39,7 +39,6 @@ async function saveSensorData(data) {
       T_EC,
     });
     await newData.save();
-    console.log(newData);
     console.log("Sensor data saved to the database");
   } catch (error) {
     console.error("Error saving sensor data:", error);
@@ -95,18 +94,6 @@ function initializeMQTT() {
     } else {
       publishForSensor("t_valve", "0");
       console.log("Valve  --> OFF");
-    }
-  };
-
-  // el e_light testaghal lma el light twsal lel threshold
-  const E_LIGHTLEVEL_THRESHOLD = 5;
-  let check_e_light = (received) => {
-    if (received["E_lightLVL"] < E_LIGHTLEVEL_THRESHOLD) {
-      publishForSensor("e_light", "1");
-      console.log("Light  --> ON");
-    } else {
-      publishForSensor("e_light", "0");
-      console.log("Light  --> OFF");
     }
   };
 
@@ -167,7 +154,7 @@ function initializeMQTT() {
     const currentHour = currentTime.getHours();
     
     //If it's between 7 PM and 2 AM
-    if (currentHour >= 19 || currentHour < 2) {
+    if (currentHour >= 19 || currentHour <= 2) {
       client.publish("e_light", "1");
       console.log("Light --> ON");
     } else {
@@ -228,3 +215,22 @@ function initializeMQTT() {
 }
 
 module.exports = { initializeMQTT };
+
+
+
+
+
+
+
+
+  // // el e_light testaghal lma el light twsal lel threshold
+  // const E_LIGHTLEVEL_THRESHOLD = 5;
+  // let check_e_light = (received) => {
+  //   if (received["E_lightLVL"] < E_LIGHTLEVEL_THRESHOLD) {
+  //     publishForSensor("e_light", "1");
+  //     console.log("Light  --> ON");
+  //   } else {
+  //     publishForSensor("e_light", "0");
+  //     console.log("Light  --> OFF");
+  //   }
+  // };
