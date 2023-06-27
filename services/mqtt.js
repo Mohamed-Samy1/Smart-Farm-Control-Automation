@@ -58,7 +58,6 @@ function initializeMQTT() {
     password: process.env.PASSWORD,
   };
 
-  //hey
   // initialize the MQTT client
   var client = mqtt.connect(options);
 
@@ -68,7 +67,7 @@ function initializeMQTT() {
   });
 
   client.on("error", function (error) {
-    console.log(error);
+    console.error("Error connecting to HiveMQ Cloud:", error);
   });
 
   //el fan teshtaghal law el e_temp aw el e_humidity twsal threshold
@@ -163,7 +162,7 @@ function initializeMQTT() {
   }
 
   //Check Light status
-  function publishLightStatus() {
+  function checkLightStatus() {
     const currentTime = new Date();
     const currentHour = currentTime.getHours();
     
@@ -209,7 +208,7 @@ function initializeMQTT() {
       check_t_valve(received);
       check_e_light(received);
       handlePumps(received);
-      publishLightStatus(received);
+      checkLightStatus();
       saveSensorData(received);
       removeOldData();
     });
@@ -229,16 +228,3 @@ function initializeMQTT() {
 }
 
 module.exports = { initializeMQTT };
-
-// //Remove old sensor data from the database every 3 minutes
-// setInterval(() => {
-// const threeMinutesAgo = new Date(Date.now() - 3 * 60 * 1000);
-
-// Data.deleteMany({ createdAt: { $lt: threeMinutesAgo } })
-// .then(() => {
-// console.log('Old sensor data removed from the database');
-// })
-// .catch((error) => {
-// console.error('Error removing old sensor data:', error);
-// });
-// }, 3 * 60 * 1000);
