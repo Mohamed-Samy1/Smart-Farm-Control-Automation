@@ -51,8 +51,8 @@ async function saveSensorData(data) {
 function initializeMQTT() {
   // MQTT Broker configuration
   const options = {
-    host: "3948b6d4473247128a6249a0b03cf45d.s2.eu.hivemq.cloud",
-    port: 8883,
+    host: process.env.HOST,
+    port: process.env.MQTTPORT,
     protocol: process.env.PROTOCOL,
     username: "Samy1",
     password: process.env.PASSWORD,
