@@ -58,6 +58,7 @@ function initializeMQTT() {
     password: process.env.PASSWORD,
   };
 
+  //hey
   // initialize the MQTT client
   var client = mqtt.connect(options);
 
