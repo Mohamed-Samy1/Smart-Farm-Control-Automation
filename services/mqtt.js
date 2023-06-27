@@ -193,7 +193,7 @@ function initializeMQTT() {
       console.log('===============================')
       check_e_fan(received);
       check_t_valve(received);
-      check_e_light(received);
+      //check_e_light(received);
       handlePumps(received);
       checkLightStatus();
       saveSensorData(received);
