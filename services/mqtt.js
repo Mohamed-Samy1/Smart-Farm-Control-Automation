@@ -191,9 +191,17 @@ function initializeMQTT() {
       let received = JSON.parse(message);
       //console.log(received["E_humidity"]);
       console.log('===============================')
+
+      //check_e_light(received);
+      
+      // el pump wel air dayman shaghaleen
+      publishForSensor("t_pump", "1");
+      console.log("Tank Pump --> ON");
+      publishForSensor("t_air", "1");
+      console.log("Air Tank  --> ON");
+
       check_e_fan(received);
       check_t_valve(received);
-      //check_e_light(received);
       handlePumps(received);
       checkLightStatus();
       saveSensorData(received);
@@ -205,20 +213,11 @@ function initializeMQTT() {
     client.publish(topic, data);
   }
 
-  // el pump wel air dayman shaghaleen
-  publishForSensor("t_pump", "1");
-  console.log("Tank Pump --> ON");
-  publishForSensor("t_air", "1");
-  console.log("Air Tank  --> ON");
 
   subscribeToMainTopic("hyrda-main");
 }
 
 module.exports = { initializeMQTT };
-
-
-
-
 
 
 
@@ -234,3 +233,17 @@ module.exports = { initializeMQTT };
   //     console.log("Light  --> OFF");
   //   }
   // };
+
+
+  // {
+  //   "serialNumber": "hCsdkfjcx2",
+  //   "paired": true,
+  //   "T_temperature": 25,
+  //   "E_temperature": 25,
+  //   "E_co2": 450,
+  //   "E_lightLVL": 80,
+  //   "E_humidity": 30,
+  //   "T_Waterlvl": 7.2,
+  //   "T_PH": 6.8,
+  //   "T_EC": 2400
+  // }
