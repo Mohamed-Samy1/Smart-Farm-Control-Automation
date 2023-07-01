@@ -78,10 +78,10 @@ function initializeMQTT() {
       received["E_temperature"] > E_TEMPERATURE_THRESHOLD
     ) {
       publishForSensor("e_fan", "1");
-      console.log("Fan    --> ON");
+      console.log("Fan        --> ON");
     } else {
       publishForSensor("e_fan", "0");
-      console.log("Fan     --> OFF");
+      console.log("Fan         --> OFF");
     }
   };
 
@@ -90,10 +90,10 @@ function initializeMQTT() {
   let check_t_valve = (received) => {
     if (received["T_Waterlvl"] < T_WATERLEVEL_THRESHOLD) {
       publishForSensor("t_valve", "1");
-      console.log("Valve  --> ON");
+      console.log("Valve      --> ON");
     } else {
       publishForSensor("t_valve", "0");
-      console.log("Valve  --> OFF");
+      console.log("Valve      --> OFF");
     }
   };
 
@@ -107,10 +107,10 @@ function initializeMQTT() {
     if (data["T_EC"] > 2000) {
       // If T_EC is greater than 2000, publish '1' on topic 'pump3'
       client.publish("pump3", "1");
-      console.log("Pump 3 --> ON");
+      console.log("Pump 3     --> ON");
     } else {
       client.publish("pump3", "0");
-      console.log("Pump 3 --> OFF");
+      console.log("Pump 3     --> OFF");
     }
 
     // Check the value of T_PH
@@ -119,32 +119,32 @@ function initializeMQTT() {
       if (currentTime - pump1Time >= 5 * 60 * 1000) {
         // If 5 minutes have passed, publish '1' on topic 'pump1' and update the pump1Time variable
         client.publish("pump1", "1");
-        console.log("Pump 1 --> ON");
-        console.log("Pump 2 --> OFF");
+        console.log("Pump 1     --> ON");
+        console.log("Pump 2     --> OFF");
         pump1Time = currentTime;
       } else {
         client.publish("pump1", "0");
         client.publish("pump2", "0");
-        console.log("Pump 1 --> OFF");
-        console.log("Pump 2 --> OFF");
+        console.log("Pump 1     --> OFF");
+        console.log("Pump 2     --> OFF");
       }
     } else if (data["T_PH"] > 6) {
       // If T_PH is greater than 6, check if 5 minutes have passed since the last time we published to pump2
       if (currentTime - pump2Time >= 5 * 60 * 1000) {
         // If 5 minutes have passed, publish '1' on topic 'pump2' and update the pump2Time variable
         client.publish("pump2", "1");
-        console.log("Pump 2 --> ON");
-        console.log("Pump 1 --> OFF");
+        console.log("Pump 2     --> ON");
+        console.log("Pump 1     --> OFF");
         pump2Time = currentTime;
       } else {
         client.publish("pump1", "0");
         client.publish("pump2", "0");
-        console.log("Pump 1 --> OFF");
-        console.log("Pump 2 --> OFF");      }
+        console.log("Pump 1     --> OFF");
+        console.log("Pump 2     --> OFF");      }
     } else {
       client.publish("pump1", "0");
       client.publish("pump2", "0");
-      console.log("Pump 1 and Pump 2 --> OFF");
+      console.log("Pump 1 and Pump 2   --> OFF");
     }
   }
 
@@ -156,10 +156,10 @@ function initializeMQTT() {
     //If it's between 7 PM and 2 AM
     if (currentHour >= 19 || currentHour <= 2) {
       client.publish("e_light", "1");
-      console.log("Light --> ON");
+      console.log("Light     --> ON");
     } else {
       client.publish("e_light", "0");
-      console.log("Light --> OFF");
+      console.log("Light     --> OFF");
     }
   }
 
@@ -204,7 +204,8 @@ function initializeMQTT() {
       check_e_fan(received);
       check_t_valve(received);
       handlePumps(received);
-      checkLightStatus();
+      //checkLightStatus();
+      publishForSensor("e_light", "1");
       saveSensorData(received);
       removeOldData();
     });
