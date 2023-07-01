@@ -196,16 +196,18 @@ function initializeMQTT() {
 
       // el pump wel air dayman shaghaleen
       publishForSensor("t_pump", "1");
-      console.log("Tank Pump --> ON");
+      console.log("Tank Pump  --> ON");
 
       publishForSensor("t_air", "1");
-      console.log("Air Tank  --> ON");
+      console.log("Air Tank   --> ON");
+
+      publishForSensor("e_light", "1");
+      console.log("Light   --> ON");
 
       check_e_fan(received);
       check_t_valve(received);
       handlePumps(received);
       //checkLightStatus();
-      publishForSensor("e_light", "1");
       saveSensorData(received);
       removeOldData();
     });
