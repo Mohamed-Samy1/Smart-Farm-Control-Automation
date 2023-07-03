@@ -77,7 +77,7 @@ function initializeMQTT() {
       received["E_humidity"] > E_HUMIDITY_THRESHOLD ||
       received["E_temperature"] > E_TEMPERATURE_THRESHOLD
     ) {
-      publishForSensor("e_fan", "1");
+      publishForSensor("a", "1");
       console.log("Fan        --> ON");
     } else {
       publishForSensor("e_fan", "0");
@@ -164,13 +164,16 @@ function initializeMQTT() {
   }
 
   //remove old data each period of time from data collection
-  async function removeOldData() {
+  async function removeOldData(received) {
     try {
       const currentTime = new Date();
       const sevenMinutesAgo = new Date(currentTime.getTime() - 7 * 60 * 1000);
   
-      const result = await Data.deleteMany({ createdAt: { $lte: sevenMinutesAgo } });
-      console.log(`${result.deletedCount} documents removed`);
+      const result = await Data.deleteMany({
+        createdAt: { $lte: sevenMinutesAgo },
+        serialNumber: received.serialNumber,
+      });
+      console.log(`${result.deletedCount} documents removed for serial number ${received.serialNumber}`);
     } catch (error) {
       console.error("Error removing old data:", error);
     }
@@ -194,7 +197,7 @@ function initializeMQTT() {
 
       //check_e_light(received);
 
-      // el pump wel air dayman shaghaleen
+      // The t_pump and t_air are always ON
       publishForSensor("t_pump", "1");
       console.log("Tank Pump  --> ON");
 
@@ -209,7 +212,7 @@ function initializeMQTT() {
       handlePumps(received);
       //checkLightStatus();
       saveSensorData(received);
-      removeOldData();
+      removeOldData(received);
     });
   }
 
@@ -223,20 +226,6 @@ function initializeMQTT() {
 
 module.exports = { initializeMQTT };
 
-
-
-
-  // // el e_light testaghal lma el light twsal lel threshold
-  // const E_LIGHTLEVEL_THRESHOLD = 5;
-  // let check_e_light = (received) => {
-  //   if (received["E_lightLVL"] < E_LIGHTLEVEL_THRESHOLD) {
-  //     publishForSensor("e_light", "1");
-  //     console.log("Light  --> ON");
-  //   } else {
-  //     publishForSensor("e_light", "0");
-  //     console.log("Light  --> OFF");
-  //   }
-  // };
 
 
   // {

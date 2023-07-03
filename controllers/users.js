@@ -4,6 +4,7 @@ const crypto = require("crypto");
 
 const { User } = require("../models/user");
 const { getAuthenticatedUser } = require('../utils/authorization');
+
 //The next line needs to be checked
 const { threadId } = require("worker_threads");
 
