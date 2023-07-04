@@ -210,22 +210,6 @@ function initializeMQTT() {
     }
   }
 
-  //remove old data each period of time from data collection
-  async function removeOldData(receivedData) {
-    try {
-      const currentTime = new Date();
-      const sevenMinutesAgo = new Date(currentTime.getTime() - 7 * 60 * 1000);
-  
-      const result = await Data.deleteMany({
-        createdAt: { $lte: sevenMinutesAgo },
-        serialNumber: receivedData.serialNumber,
-      });
-      console.log(`${result.deletedCount} documents removed for serial number ${receivedData.serialNumber}`);
-    } catch (error) {
-      console.error("Error removing old data:", error);
-    }
-  }
-
   function subscribeToMainTopic(topic) {
     // Subscribe to the topic
     client.subscribe(topic, function (err) {
@@ -254,7 +238,7 @@ function initializeMQTT() {
       handlePumps(receivedData);
       checkLightStatus();
       saveSensorData(receivedData);
-      removeOldData(receivedData);
+      //removeOldData(receivedData);
     });
   }
 
@@ -269,7 +253,7 @@ function initializeMQTT() {
 module.exports = { initializeMQTT };
 
 
-
+  // Example of published sensors data for a farm
   // {
   //   "serialNumber": "hCsdkfjcx2",
   //   "paired": true,
@@ -281,4 +265,21 @@ module.exports = { initializeMQTT };
   //   "T_Waterlvl": 7.2,
   //   "T_PH": 6.8,
   //   "T_EC": 2400
+  // }
+
+
+  //remove old data each period of time from data collection
+  // async function removeOldData(receivedData) {
+  //   try {
+  //     const currentTime = new Date();
+  //     const sevenMinutesAgo = new Date(currentTime.getTime() - 7 * 60 * 1000);
+  
+  //     const result = await Data.deleteMany({
+  //       createdAt: { $lte: sevenMinutesAgo },
+  //       serialNumber: receivedData.serialNumber,
+  //     });
+  //     console.log(`${result.deletedCount} documents removed for serial number ${receivedData.serialNumber}`);
+  //   } catch (error) {
+  //     console.error("Error removing old data:", error);
+  //   }
   // }
