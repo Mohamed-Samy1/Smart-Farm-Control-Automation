@@ -155,6 +155,38 @@ function initializeMQTT() {
     }
   }
 
+  // Pump Logic
+
+  function tPumpOperation(receivedData) {
+    let isPumpOn = false;
+  
+    function turnOffPump() {
+      client.publish(`t_pump/${receivedData.serialNumber}`, "0", { qos: 1 }, (err) => {
+        if (err) {
+          console.error("Error publishing '0':", err);
+        } else {
+          console.log("Pump      --> OFF");
+          isPumpOn = false;
+          setTimeout(turnOnPump, 120000);
+        }
+      });
+    }
+  
+    function turnOnPump() {
+      client.publish(`t_pump/${receivedData.serialNumber}`, "1", { qos: 1 }, (err) => {
+        if (err) {
+          console.error("Error publishing '1':", err);
+        } else {
+          console.log("Pump      --> ON");
+          isPumpOn = true;
+          setTimeout(turnOffPump, 120000);
+        }
+      });
+    }
+  
+    turnOnPump();
+  }
+
   //Check Light status
   // function checkLightStatus(receivedData) {
   //   const currentTime = new Date();
@@ -189,8 +221,8 @@ function initializeMQTT() {
       console.log(`                     ${receivedData.serialNumber}`);
 
       // The t_pump and t_air, and e_light are always ON
-      publishForSensor(`t_pump/${receivedData.serialNumber}`, "1");
-      console.log("Tank Pump  --> ON");
+      // publishForSensor(`t_pump/${receivedData.serialNumber}`, "1");
+      // console.log("Tank Pump  --> ON");
 
       publishForSensor(`t_air/${receivedData.serialNumber}`, "1");
       console.log("Air Tank   --> ON");
@@ -201,6 +233,7 @@ function initializeMQTT() {
       check_e_fan(receivedData);
       check_t_valve(receivedData);
       handlePumps(receivedData);
+      tPumpOperation(receivedData);
       //checkLightStatus(receivedData);
       saveSensorData(receivedData);
     });
