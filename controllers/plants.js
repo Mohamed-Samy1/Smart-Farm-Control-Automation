@@ -230,6 +230,7 @@ exports.checkPlantHealthByCamera = async (req, res) => {
     const latestPredictions = new Map();
     data.forEach((entry) => {
       const { device_id, prediction } = entry;
+      
       if (!latestPredictions.has(device_id)) {
         latestPredictions.set(device_id, { prediction: "", created_at: "" });
       }
@@ -248,10 +249,12 @@ exports.checkPlantHealthByCamera = async (req, res) => {
       const device_id = farm.serialNumber;
       if (latestPredictions.has(device_id)) {
         const latestPrediction = latestPredictions.get(device_id);
+        // If we found a dead plant in any farm on the system
         if (latestPrediction.prediction !== "healthy") {
           farm.plants.forEach((plant) => {
             plant.plant_health.isDead = true;
           });
+          console.log(`DANGER: Found dead plant at farm ---> ${farm._id}.`);
           farm.save();
         }
       }
