@@ -192,7 +192,7 @@ function initializeMQTT() {
       check_e_fan(receivedData);
       check_t_valve(receivedData);
       handlePumps(receivedData);
-      checkLightStatus();
+      checkLightStatus(receivedData);
       saveSensorData(receivedData);
       //removeOldData(receivedData);
     });
