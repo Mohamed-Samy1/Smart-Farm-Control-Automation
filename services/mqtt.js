@@ -186,7 +186,9 @@ function initializeMQTT() {
     client.on("message", function (topic, message) {
       let receivedData = JSON.parse(message);
       if (receivedData.control === "Auto") {
-        console.log("====================================================");
+        console.log("===================================================");
+        console.log("                     AUTOMATIC");
+        console.log("===================================================");
         console.log(`                     ${receivedData.serialNumber}`);
 
         // The t_pump and t_air are always ON
