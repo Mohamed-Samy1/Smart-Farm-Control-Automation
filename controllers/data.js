@@ -110,7 +110,7 @@ exports.manualControl = async (req, res, next) => {
         .send("Serial Number, Device, and state fields are required");
     }
     // Publish a message to the relevant MQTT topic based on the device and state
-    const topic = `${device}/${serialNumber}/`;
+    const topic = `${device}/${serialNumber}`;
     const message = state === "on" ? "1" : "0";
     client.publish(topic, message, (err) => {
       if (err) {
