@@ -2,50 +2,6 @@ const mqtt = require("mqtt");
 const { Data } = require("../models/data");
 const { Farm } = require("../models/farm");
 
-// async function saveSensorData(receivedData) {
-//   try {
-//     // Extract the relevant fields from the received data
-//     const {
-//       serialNumber,
-//       paired,
-//       E_humidity,
-//       E_temperature,
-//       E_co2,
-//       E_lightLVL,
-//       T_temperature,
-//       T_Waterlvl,
-//       T_PH,
-//       T_EC,
-//     } = receivedData;
-
-//     // Find the farm with the provided serialNumber
-//     const farm = await Farm.findOne({ serialNumber });
-//     if (!farm) {
-//       throw new Error(`Farm with serial number ${serialNumber} not found`);
-//     }
-
-//     // Create a new Data document and save it to the database
-//     const newData = new Data({
-//       farmID: farm._id,
-//       serialNumber,
-//       paired,
-//       E_humidity,
-//       E_temperature,
-//       E_co2,
-//       E_lightLVL,
-//       T_temperature,
-//       T_Waterlvl,
-//       T_PH,
-//       T_EC,
-//     });
-//     await newData.save();
-//     console.log(`Sensors data saved successfully for serial number ${receivedData.serialNumber}`);
-//   } catch (error) {
-//     console.error("Error saving sensor data:", error);
-//   }
-// }
-
-
 async function saveSensorData(receivedData) {
   try {
     // Extract the relevant fields from the received data
