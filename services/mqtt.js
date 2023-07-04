@@ -7,7 +7,6 @@ async function saveSensorData(receivedData) {
     // Extract the relevant fields from the received data
     const {
       serialNumber,
-      control,
       paired,
       E_humidity,
       E_temperature,
@@ -31,7 +30,6 @@ async function saveSensorData(receivedData) {
       {
         $set: {
           paired,
-          control,
           T_temperature: T_temperature,
           E_temperature: E_temperature,
           E_co2: E_co2,
