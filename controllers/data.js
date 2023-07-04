@@ -48,7 +48,7 @@ exports.getFarmData = async (req, res) => {
     }
 
     // Find the data documents associated with the farm
-    const data = await Data.find({ farmID: farm._id });
+    const data = await Data.find({ serialNumber: serialNumber });
 
     // Send the data documents as the response
     res.status(200).json(data);

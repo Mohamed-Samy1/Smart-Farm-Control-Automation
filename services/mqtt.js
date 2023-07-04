@@ -53,165 +53,161 @@ async function saveSensorData(receivedData) {
 
 // Main MQTT Function
 
-function initializeMQTT(isAuto) {
+function initializeMQTT() {
+  // MQTT Broker configuration
+  const options = {
+    host: process.env.HOST,
+    port: process.env.MQTTPORT,
+    protocol: process.env.PROTOCOL,
+    username: "Samy1",
+    password: process.env.PASSWORD,
+  };
 
-  if (isAuto) {
-    // MQTT Broker configuration
-    const options = {
-      host: process.env.HOST,
-      port: process.env.MQTTPORT,
-      protocol: process.env.PROTOCOL,
-      username: "Samy1",
-      password: process.env.PASSWORD,
-    };
+  // initialize the MQTT client
+  var client = mqtt.connect(options);
 
-    // initialize the MQTT client
-    var client = mqtt.connect(options);
+  // setup the callbacks
+  client.on("connect", function () {
+    console.log("Connected to HiveMQ");
+  });
 
-    // setup the callbacks
-    client.on("connect", function () {
-      console.log("Connected to HiveMQ");
-    });
+  client.on("error", function (error) {
+    console.error("Error connecting to HiveMQ Cloud:", error);
+  });
 
-    client.on("error", function (error) {
-      console.error("Error connecting to HiveMQ Cloud:", error);
-    });
+  //The fan is set to ON when the recived E_humidity or E_temperature exceeds the threshold
+  const E_HUMIDITY_THRESHOLD = 60;
+  const E_TEMPERATURE_THRESHOLD = 27;
+  let check_e_fan = (receivedData) => {
+    if (
+      receivedData["E_humidity"] > E_HUMIDITY_THRESHOLD ||
+      receivedData["E_temperature"] > E_TEMPERATURE_THRESHOLD
+    ) {
+      publishForSensor(`e_fan/${receivedData.serialNumber}`, "1");
+      console.log("Fan        --> ON");
+    } else {
+      publishForSensor(`e_fan/${receivedData.serialNumber}`, "0");
+      console.log("Fan        --> OFF");
+    }
+  };
 
-    //The fan is set to ON when the recived E_humidity or E_temperature exceeds the threshold
-    const E_HUMIDITY_THRESHOLD = 60;
-    const E_TEMPERATURE_THRESHOLD = 27;
-    let check_e_fan = (receivedData) => {
-      if (
-        receivedData["E_humidity"] > E_HUMIDITY_THRESHOLD ||
-        receivedData["E_temperature"] > E_TEMPERATURE_THRESHOLD
-      ) {
-        publishForSensor(`e_fan/${receivedData.serialNumber}`, "1");
-        console.log("Fan        --> ON");
-      } else {
-        publishForSensor(`e_fan/${receivedData.serialNumber}`, "0");
-        console.log("Fan        --> OFF");
-      }
-    };
+  // The valve is set to ON when the recived T_Waterlvl exceeds the threshold
+  const T_WATERLEVEL_THRESHOLD = 5;
+  let check_t_valve = (receivedData) => {
+    if (receivedData["T_Waterlvl"] < T_WATERLEVEL_THRESHOLD) {
+      publishForSensor(`t_valve/${receivedData.serialNumber}`, "1");
+      console.log("Valve      --> ON");
+    } else {
+      publishForSensor(`t_valve/${receivedData.serialNumber}`, "0");
+      console.log("Valve      --> OFF");
+    }
+  };
 
-    // The valve is set to ON when the recived T_Waterlvl exceeds the threshold
-    const T_WATERLEVEL_THRESHOLD = 5;
-    let check_t_valve = (receivedData) => {
-      if (receivedData["T_Waterlvl"] < T_WATERLEVEL_THRESHOLD) {
-        publishForSensor(`t_valve/${receivedData.serialNumber}`, "1");
-        console.log("Valve      --> ON");
-      } else {
-        publishForSensor(`t_valve/${receivedData.serialNumber}`, "0");
-        console.log("Valve      --> OFF");
-      }
-    };
+  let pump1Time = 0;
+  let pump2Time = 0;
 
-    let pump1Time = 0;
-    let pump2Time = 0;
+  function handlePumps(receivedData) {
+    const currentTime = new Date().getTime();
 
-    function handlePumps(receivedData) {
-      const currentTime = new Date().getTime();
+    // Check the value of T_EC
+    if (receivedData["T_EC"] > 2000) {
+      // If T_EC is greater than 2000, publish '1' on topic 'pump3'
+      client.publish(`pump3/${receivedData.serialNumber}`, "1");
+      console.log("Pump 3     --> ON");
+    } else {
+      client.publish(`pump3/${receivedData.serialNumber}`, "0");
+      console.log("Pump 3     --> OFF");
+    }
 
-      // Check the value of T_EC
-      if (receivedData["T_EC"] > 2000) {
-        // If T_EC is greater than 2000, publish '1' on topic 'pump3'
-        client.publish(`pump3/${receivedData.serialNumber}`, "1");
-        console.log("Pump 3     --> ON");
-      } else {
-        client.publish(`pump3/${receivedData.serialNumber}`, "0");
-        console.log("Pump 3     --> OFF");
-      }
-
-      // Check the value of T_PH
-      if (receivedData["T_PH"] < 5) {
-        // If T_PH is less than 5, check if 5 minutes have passed since the last time we published to pump1
-        if (currentTime - pump1Time >= 5 * 60 * 1000) {
-          // If 5 minutes have passed, publish '1' on topic 'pump1' and update the pump1Time variable
-          client.publish(`pump1/${receivedData.serialNumber}`, "1");
-          console.log("Pump 1     --> ON");
-          console.log("Pump 2     --> OFF");
-          pump1Time = currentTime;
-        } else {
-          client.publish(`pump1/${receivedData.serialNumber}`, "0");
-          client.publish(`pump2/${receivedData.serialNumber}`, "0");
-          console.log("Pump 1     --> OFF");
-          console.log("Pump 2     --> OFF");
-        }
-      } else if (receivedData["T_PH"] > 6) {
-        // If T_PH is greater than 6, check if 5 minutes have passed since the last time we published to pump2
-        if (currentTime - pump2Time >= 5 * 60 * 1000) {
-          // If 5 minutes have passed, publish '1' on topic 'pump2' and update the pump2Time variable
-          client.publish(`pump2/${receivedData.serialNumber}`, "1");
-          console.log("Pump 2     --> ON");
-          console.log("Pump 1     --> OFF");
-          pump2Time = currentTime;
-        } else {
-          client.publish(`pump1/${receivedData.serialNumber}`, "0");
-          client.publish(`pump2/${receivedData.serialNumber}`, "0");
-          console.log("Pump 1     --> OFF");
-          console.log("Pump 2     --> OFF");
-        }
+    // Check the value of T_PH
+    if (receivedData["T_PH"] < 5) {
+      // If T_PH is less than 5, check if 5 minutes have passed since the last time we published to pump1
+      if (currentTime - pump1Time >= 5 * 60 * 1000) {
+        // If 5 minutes have passed, publish '1' on topic 'pump1' and update the pump1Time variable
+        client.publish(`pump1/${receivedData.serialNumber}`, "1");
+        console.log("Pump 1     --> ON");
+        console.log("Pump 2     --> OFF");
+        pump1Time = currentTime;
       } else {
         client.publish(`pump1/${receivedData.serialNumber}`, "0");
         client.publish(`pump2/${receivedData.serialNumber}`, "0");
-        console.log("Pump 1 and Pump 2   --> OFF");
+        console.log("Pump 1     --> OFF");
+        console.log("Pump 2     --> OFF");
       }
-    }
-
-    //Check Light status
-    function checkLightStatus(receivedData) {
-      const currentTime = new Date();
-      const currentHour = currentTime.getHours();
-
-      //If it's between 7 PM and 2 AM
-      if (currentHour >= 19 || currentHour <= 2) {
-        client.publish(`e_light/${receivedData.serialNumber}`, "1");
-        console.log("Light      --> ON");
+    } else if (receivedData["T_PH"] > 6) {
+      // If T_PH is greater than 6, check if 5 minutes have passed since the last time we published to pump2
+      if (currentTime - pump2Time >= 5 * 60 * 1000) {
+        // If 5 minutes have passed, publish '1' on topic 'pump2' and update the pump2Time variable
+        client.publish(`pump2/${receivedData.serialNumber}`, "1");
+        console.log("Pump 2     --> ON");
+        console.log("Pump 1     --> OFF");
+        pump2Time = currentTime;
       } else {
-        client.publish(`e_light/${receivedData.serialNumber}`, "0");
-        console.log("Light      --> OFF");
+        client.publish(`pump1/${receivedData.serialNumber}`, "0");
+        client.publish(`pump2/${receivedData.serialNumber}`, "0");
+        console.log("Pump 1     --> OFF");
+        console.log("Pump 2     --> OFF");
       }
+    } else {
+      client.publish(`pump1/${receivedData.serialNumber}`, "0");
+      client.publish(`pump2/${receivedData.serialNumber}`, "0");
+      console.log("Pump 1 and Pump 2   --> OFF");
     }
-
-    function subscribeToMainTopic(topic) {
-      // Subscribe to the topic
-      client.subscribe(topic, function (err) {
-        if (err) {
-          console.log("Error subscribing to topic:", err);
-        } else {
-          console.log("Subscribed to topic" + " " + topic);
-        }
-      });
-
-      // Log messages received on the topic
-      client.on("message", function (topic, message) {
-        let receivedData = JSON.parse(message);
-        if (isAuto)
-        console.log("===================================================");
-        console.log("                     AUTOMATIC");
-        console.log("===================================================");
-        console.log(`                     ${receivedData.serialNumber}`);
-
-        // The t_pump and t_air are always ON
-        publishForSensor(`t_pump/${receivedData.serialNumber}`, "1");
-        console.log("Tank Pump  --> ON");
-
-        publishForSensor(`t_air/${receivedData.serialNumber}`, "1");
-        console.log("Air Tank   --> ON");
-
-        check_e_fan(receivedData);
-        check_t_valve(receivedData);
-        handlePumps(receivedData);
-        checkLightStatus(receivedData);
-        saveSensorData(receivedData);
-      });
-    }
-
-    function publishForSensor(topic, data) {
-      client.publish(topic, data);
-    }
-
-    subscribeToMainTopic("hyrda-main");
   }
+
+  //Check Light status
+  function checkLightStatus(receivedData) {
+    const currentTime = new Date();
+    const currentHour = currentTime.getHours();
+
+    //If it's between 7 PM and 2 AM
+    if (currentHour >= 19 || currentHour <= 2) {
+      client.publish(`e_light/${receivedData.serialNumber}`, "1");
+      console.log("Light      --> ON");
+    } else {
+      client.publish(`e_light/${receivedData.serialNumber}`, "0");
+      console.log("Light      --> OFF");
+    }
+  }
+
+  function subscribeToMainTopic(topic) {
+    // Subscribe to the topic
+    client.subscribe(topic, function (err) {
+      if (err) {
+        console.log("Error subscribing to topic:", err);
+      } else {
+        console.log("Subscribed to topic" + " " + topic);
+      }
+    });
+
+    // Log messages received on the topic
+    client.on("message", function (topic, message) {
+      let receivedData = JSON.parse(message);
+      console.log("===================================================");
+      console.log("                     AUTOMATIC");
+      console.log("===================================================");
+      console.log(`                     ${receivedData.serialNumber}`);
+
+      // The t_pump and t_air are always ON
+      publishForSensor(`t_pump/${receivedData.serialNumber}`, "1");
+      console.log("Tank Pump  --> ON");
+
+      publishForSensor(`t_air/${receivedData.serialNumber}`, "1");
+      console.log("Air Tank   --> ON");
+
+      check_e_fan(receivedData);
+      check_t_valve(receivedData);
+      handlePumps(receivedData);
+      checkLightStatus(receivedData);
+      saveSensorData(receivedData);
+    });
+  }
+
+  function publishForSensor(topic, data) {
+    client.publish(topic, data);
+  }
+
+  subscribeToMainTopic("hyrda-main");
 }
 
 module.exports = { initializeMQTT };
