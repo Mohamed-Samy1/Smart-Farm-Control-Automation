@@ -2,7 +2,51 @@ const mqtt = require("mqtt");
 const { Data } = require("../models/data");
 const { Farm } = require("../models/farm");
 
-async function saveSensorData(data) {
+// async function saveSensorData(receivedData) {
+//   try {
+//     // Extract the relevant fields from the received data
+//     const {
+//       serialNumber,
+//       paired,
+//       E_humidity,
+//       E_temperature,
+//       E_co2,
+//       E_lightLVL,
+//       T_temperature,
+//       T_Waterlvl,
+//       T_PH,
+//       T_EC,
+//     } = receivedData;
+
+//     // Find the farm with the provided serialNumber
+//     const farm = await Farm.findOne({ serialNumber });
+//     if (!farm) {
+//       throw new Error(`Farm with serial number ${serialNumber} not found`);
+//     }
+
+//     // Create a new Data document and save it to the database
+//     const newData = new Data({
+//       farmID: farm._id,
+//       serialNumber,
+//       paired,
+//       E_humidity,
+//       E_temperature,
+//       E_co2,
+//       E_lightLVL,
+//       T_temperature,
+//       T_Waterlvl,
+//       T_PH,
+//       T_EC,
+//     });
+//     await newData.save();
+//     console.log(`Sensors data saved successfully for serial number ${receivedData.serialNumber}`);
+//   } catch (error) {
+//     console.error("Error saving sensor data:", error);
+//   }
+// }
+
+
+async function saveSensorData(receivedData) {
   try {
     // Extract the relevant fields from the received data
     const {
@@ -15,8 +59,8 @@ async function saveSensorData(data) {
       T_temperature,
       T_Waterlvl,
       T_PH,
-      T_EC,
-    } = data;
+      T_EC
+    } = receivedData;
 
     // Find the farm with the provided serialNumber
     const farm = await Farm.findOne({ serialNumber });
@@ -24,22 +68,25 @@ async function saveSensorData(data) {
       throw new Error(`Farm with serial number ${serialNumber} not found`);
     }
 
-    // Create a new Data document and save it to the database
-    const newData = new Data({
-      farmID: farm._id,
-      serialNumber,
-      paired,
-      E_humidity,
-      E_temperature,
-      E_co2,
-      E_lightLVL,
-      T_temperature,
-      T_Waterlvl,
-      T_PH,
-      T_EC,
-    });
-    await newData.save();
-    console.log("Sensor data saved to the database");
+    // Update the farm document with the latest sensor data
+    await Data.updateOne(
+      { serialNumber },
+      {
+        $set: {
+          paired,
+          "T_temperature": T_temperature,
+          "E_temperature": E_temperature,
+          "E_co2": E_co2,
+          "E_lightLVL": E_lightLVL,
+          "E_humidity": E_humidity,
+          "T_Waterlvl": T_Waterlvl,
+          "T_PH": T_PH,
+          "T_EC": T_EC,
+        }
+      }, { upsert: true }
+    );
+
+    console.log(`Sensor data saved successfully for serial number ${serialNumber}`);
   } catch (error) {
     console.error("Error saving sensor data:", error);
   }
@@ -69,30 +116,30 @@ function initializeMQTT() {
     console.error("Error connecting to HiveMQ Cloud:", error);
   });
 
-  //el fan teshtaghal law el e_temp aw el e_humidity twsal threshold
+  //The fan is set to ON when the recived E_humidity or E_temperature exceeds the threshold
   const E_HUMIDITY_THRESHOLD = 60;
   const E_TEMPERATURE_THRESHOLD = 27;
-  let check_e_fan = (received) => {
+  let check_e_fan = (receivedData) => {
     if (
-      received["E_humidity"] > E_HUMIDITY_THRESHOLD ||
-      received["E_temperature"] > E_TEMPERATURE_THRESHOLD
+      receivedData["E_humidity"] > E_HUMIDITY_THRESHOLD ||
+      receivedData["E_temperature"] > E_TEMPERATURE_THRESHOLD
     ) {
-      publishForSensor("a", "1");
+      publishForSensor("e_fan/${receivedData.serialNumber}", "1");
       console.log("Fan        --> ON");
     } else {
-      publishForSensor("e_fan", "0");
+      publishForSensor("e_fan/${receivedData.serialNumber}", "0");
       console.log("Fan         --> OFF");
     }
   };
 
-  // el valve teshtaghal lma el water level ywsal lel threshold
+  // The valve is set to ON when the recived T_Waterlvl exceeds the threshold
   const T_WATERLEVEL_THRESHOLD = 5;
-  let check_t_valve = (received) => {
-    if (received["T_Waterlvl"] < T_WATERLEVEL_THRESHOLD) {
-      publishForSensor("t_valve", "1");
+  let check_t_valve = (receivedData) => {
+    if (receivedData["T_Waterlvl"] < T_WATERLEVEL_THRESHOLD) {
+      publishForSensor("t_valve/${receivedData.serialNumber}", "1");
       console.log("Valve      --> ON");
     } else {
-      publishForSensor("t_valve", "0");
+      publishForSensor("t_valve/${receivedData.serialNumber}", "0");
       console.log("Valve      --> OFF");
     }
   };
@@ -100,80 +147,80 @@ function initializeMQTT() {
   let pump1Time = 0;
   let pump2Time = 0;
 
-  function handlePumps(data) {
+  function handlePumps(receivedData) {
     const currentTime = new Date().getTime();
 
     // Check the value of T_EC
-    if (data["T_EC"] > 2000) {
+    if (receivedData["T_EC"] > 2000) {
       // If T_EC is greater than 2000, publish '1' on topic 'pump3'
-      client.publish("pump3", "1");
+      client.publish("pump3/${receivedData.serialNumber}", "1");
       console.log("Pump 3     --> ON");
     } else {
-      client.publish("pump3", "0");
+      client.publish("pump3/${receivedData.serialNumber}", "0");
       console.log("Pump 3     --> OFF");
     }
 
     // Check the value of T_PH
-    if (data["T_PH"] < 5) {
+    if (receivedData["T_PH"] < 5) {
       // If T_PH is less than 5, check if 5 minutes have passed since the last time we published to pump1
       if (currentTime - pump1Time >= 5 * 60 * 1000) {
         // If 5 minutes have passed, publish '1' on topic 'pump1' and update the pump1Time variable
-        client.publish("pump1", "1");
+        client.publish("pump1/${receivedData.serialNumber}", "1");
         console.log("Pump 1     --> ON");
         console.log("Pump 2     --> OFF");
         pump1Time = currentTime;
       } else {
-        client.publish("pump1", "0");
-        client.publish("pump2", "0");
+        client.publish("pump1/${receivedData.serialNumber}", "0");
+        client.publish("pump2/${receivedData.serialNumber}", "0");
         console.log("Pump 1     --> OFF");
         console.log("Pump 2     --> OFF");
       }
-    } else if (data["T_PH"] > 6) {
+    } else if (receivedData["T_PH"] > 6) {
       // If T_PH is greater than 6, check if 5 minutes have passed since the last time we published to pump2
       if (currentTime - pump2Time >= 5 * 60 * 1000) {
         // If 5 minutes have passed, publish '1' on topic 'pump2' and update the pump2Time variable
-        client.publish("pump2", "1");
+        client.publish("pump2/${receivedData.serialNumber}", "1");
         console.log("Pump 2     --> ON");
         console.log("Pump 1     --> OFF");
         pump2Time = currentTime;
       } else {
-        client.publish("pump1", "0");
-        client.publish("pump2", "0");
+        client.publish("pump1/${receivedData.serialNumber}", "0");
+        client.publish("pump2/${receivedData.serialNumber}", "0");
         console.log("Pump 1     --> OFF");
         console.log("Pump 2     --> OFF");      }
     } else {
-      client.publish("pump1", "0");
-      client.publish("pump2", "0");
+      client.publish("pump1/${receivedData.serialNumber}", "0");
+      client.publish("pump2/${receivedData.serialNumber}", "0");
       console.log("Pump 1 and Pump 2   --> OFF");
     }
   }
 
   //Check Light status
-  function checkLightStatus() {
+  function checkLightStatus(receivedData) {
     const currentTime = new Date();
     const currentHour = currentTime.getHours();
     
     //If it's between 7 PM and 2 AM
     if (currentHour >= 19 || currentHour <= 2) {
-      client.publish("e_light", "1");
-      console.log("Light     --> ON");
+      client.publish("e_light/${receivedData.serialNumber}", "1");
+      console.log("Light      --> ON");
     } else {
-      client.publish("e_light", "0");
-      console.log("Light     --> OFF");
+      client.publish("e_light/${receivedData.serialNumber}", "0");
+      console.log("Light      --> OFF");
     }
   }
 
   //remove old data each period of time from data collection
-  async function removeOldData(received) {
+  async function removeOldData(receivedData) {
     try {
       const currentTime = new Date();
       const sevenMinutesAgo = new Date(currentTime.getTime() - 7 * 60 * 1000);
   
       const result = await Data.deleteMany({
         createdAt: { $lte: sevenMinutesAgo },
-        serialNumber: received.serialNumber,
+        serialNumber: receivedData.serialNumber,
       });
-      console.log(`${result.deletedCount} documents removed for serial number ${received.serialNumber}`);
+      console.log(`${result.deletedCount} documents removed for serial number ${receivedData.serialNumber}`);
     } catch (error) {
       console.error("Error removing old data:", error);
     }
@@ -191,28 +238,23 @@ function initializeMQTT() {
 
     // Log messages received on the topic
     client.on("message", function (topic, message) {
-      let received = JSON.parse(message);
-      //console.log(received["E_humidity"]);
-      console.log('===============================')
 
-      //check_e_light(received);
+      let receivedData = JSON.parse(message);
+      console.log('====================================================')
 
       // The t_pump and t_air are always ON
-      publishForSensor("t_pump", "1");
+      publishForSensor("t_pump/${receivedData.serialNumber}", "1");
       console.log("Tank Pump  --> ON");
 
-      publishForSensor("t_air", "1");
+      publishForSensor("t_air/${receivedData.serialNumber}", "1");
       console.log("Air Tank   --> ON");
 
-      publishForSensor("e_light", "1");
-      console.log("Light   --> ON");
-
-      check_e_fan(received);
-      check_t_valve(received);
-      handlePumps(received);
-      //checkLightStatus();
-      saveSensorData(received);
-      removeOldData(received);
+      check_e_fan(receivedData);
+      check_t_valve(receivedData);
+      handlePumps(receivedData);
+      checkLightStatus();
+      saveSensorData(receivedData);
+      removeOldData(receivedData);
     });
   }
 

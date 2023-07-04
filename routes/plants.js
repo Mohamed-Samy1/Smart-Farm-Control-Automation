@@ -26,6 +26,8 @@ router.get('/getAllPlantNames', plantsController.getAllPlantNames);
 // getAllPlantsByFarm
 router.post('/getAllPlantsByFarm', plantsController.getAllPlantsByFarm);
 
+// Check the plant health using the camera
+router.get('/checkPlantHealthByCamera', plantsController.checkPlantHealthByCamera);
 
 /* 
 Get an array of objects that has the following:
