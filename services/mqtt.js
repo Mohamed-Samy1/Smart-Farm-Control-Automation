@@ -188,21 +188,6 @@ function initializeMQTT() {
       turnOffPump();
     }, 120000);
   }
-  
-  //Check Light status
-  // function checkLightStatus(receivedData) {
-  //   const currentTime = new Date();
-  //   const currentHour = currentTime.getHours();
-
-  //   //If it's between 7 PM and 2 AM
-  //   if (currentHour >= 19 || currentHour <= 2) {
-  //     client.publish(`e_light/${receivedData.serialNumber}`, "1");
-  //     console.log("Light      --> ON");
-  //   } else {
-  //     client.publish(`e_light/${receivedData.serialNumber}`, "0");
-  //     console.log("Light      --> OFF");
-  //   }
-  // }
 
   function subscribeToMainTopic(topic) {
     // Subscribe to the topic
@@ -237,11 +222,7 @@ function initializeMQTT() {
       handlePumps(receivedData);
       //tPumpOperation(receivedData);
       //checkLightStatus(receivedData);
-
-      setInterval(() => {
-        tPumpOperation(receivedData);
-      }, 120000);
-      
+      console.log(receivedData);
       saveSensorData(receivedData);
     });
   }

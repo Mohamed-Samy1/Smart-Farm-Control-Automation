@@ -100,6 +100,7 @@ exports.manualControl = async (req, res, next) => {
   const { serialNumber, device, state, isAuto } = req.body;
 
   if (!isAuto) {
+    
     client.unsubscribe("hydra-main");
     console.log('Unsubscribed to hydra-main, Manual Control is now On.');
     
