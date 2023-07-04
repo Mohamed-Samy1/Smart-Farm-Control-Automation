@@ -169,8 +169,8 @@ function initializeMQTT() {
 
     function turnOnPump() {
       client.publish(`pump1/${receivedData.serialNumber}`, "1");
-      console.log("Pump      --> OFF");
-      isPumpOn = false;
+      console.log("Pump      --> ON");
+      isPumpOn = true;
       setTimeout(turnOffPump, 120000);
     }
 
