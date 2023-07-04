@@ -17,7 +17,7 @@ async function saveSensorData(receivedData) {
       T_PH,
       T_EC
     } = receivedData;
-
+    
     // Find the farm with the provided serialNumber
     const farm = await Farm.findOne({ serialNumber });
     if (!farm) {
@@ -80,10 +80,10 @@ function initializeMQTT() {
       receivedData["E_humidity"] > E_HUMIDITY_THRESHOLD ||
       receivedData["E_temperature"] > E_TEMPERATURE_THRESHOLD
     ) {
-      publishForSensor("e_fan/${receivedData.serialNumber}", "1");
+      publishForSensor(`e_fan/${receivedData.serialNumber}`, "1");
       console.log("Fan        --> ON");
     } else {
-      publishForSensor("e_fan/${receivedData.serialNumber}", "0");
+      publishForSensor(`e_fan/${receivedData.serialNumber}`, "0");
       console.log("Fan         --> OFF");
     }
   };
@@ -92,10 +92,10 @@ function initializeMQTT() {
   const T_WATERLEVEL_THRESHOLD = 5;
   let check_t_valve = (receivedData) => {
     if (receivedData["T_Waterlvl"] < T_WATERLEVEL_THRESHOLD) {
-      publishForSensor("t_valve/${receivedData.serialNumber}", "1");
+      publishForSensor(`t_valve/${receivedData.serialNumber}`, "1");
       console.log("Valve      --> ON");
     } else {
-      publishForSensor("t_valve/${receivedData.serialNumber}", "0");
+      publishForSensor(`t_valve/${receivedData.serialNumber}`, "0");
       console.log("Valve      --> OFF");
     }
   };
@@ -109,10 +109,10 @@ function initializeMQTT() {
     // Check the value of T_EC
     if (receivedData["T_EC"] > 2000) {
       // If T_EC is greater than 2000, publish '1' on topic 'pump3'
-      client.publish("pump3/${receivedData.serialNumber}", "1");
+      client.publish(`pump3/${receivedData.serialNumber}`, "1");
       console.log("Pump 3     --> ON");
     } else {
-      client.publish("pump3/${receivedData.serialNumber}", "0");
+      client.publish(`pump3/${receivedData.serialNumber}`, "0");
       console.log("Pump 3     --> OFF");
     }
 
@@ -121,13 +121,13 @@ function initializeMQTT() {
       // If T_PH is less than 5, check if 5 minutes have passed since the last time we published to pump1
       if (currentTime - pump1Time >= 5 * 60 * 1000) {
         // If 5 minutes have passed, publish '1' on topic 'pump1' and update the pump1Time variable
-        client.publish("pump1/${receivedData.serialNumber}", "1");
+        client.publish(`pump1/${receivedData.serialNumber}`, "1");
         console.log("Pump 1     --> ON");
         console.log("Pump 2     --> OFF");
         pump1Time = currentTime;
       } else {
-        client.publish("pump1/${receivedData.serialNumber}", "0");
-        client.publish("pump2/${receivedData.serialNumber}", "0");
+        client.publish(`pump1/${receivedData.serialNumber}`, "0");
+        client.publish(`pump2/${receivedData.serialNumber}`, "0");
         console.log("Pump 1     --> OFF");
         console.log("Pump 2     --> OFF");
       }
@@ -135,18 +135,18 @@ function initializeMQTT() {
       // If T_PH is greater than 6, check if 5 minutes have passed since the last time we published to pump2
       if (currentTime - pump2Time >= 5 * 60 * 1000) {
         // If 5 minutes have passed, publish '1' on topic 'pump2' and update the pump2Time variable
-        client.publish("pump2/${receivedData.serialNumber}", "1");
+        client.publish(`pump2/${receivedData.serialNumber}`, "1");
         console.log("Pump 2     --> ON");
         console.log("Pump 1     --> OFF");
         pump2Time = currentTime;
       } else {
-        client.publish("pump1/${receivedData.serialNumber}", "0");
-        client.publish("pump2/${receivedData.serialNumber}", "0");
+        client.publish(`pump1/${receivedData.serialNumber}`, "0");
+        client.publish(`pump2/${receivedData.serialNumber}`, "0");
         console.log("Pump 1     --> OFF");
         console.log("Pump 2     --> OFF");      }
     } else {
-      client.publish("pump1/${receivedData.serialNumber}", "0");
-      client.publish("pump2/${receivedData.serialNumber}", "0");
+      client.publish(`pump1/${receivedData.serialNumber}`, "0");
+      client.publish(`pump2/${receivedData.serialNumber}`, "0");
       console.log("Pump 1 and Pump 2   --> OFF");
     }
   }
@@ -158,10 +158,10 @@ function initializeMQTT() {
     
     //If it's between 7 PM and 2 AM
     if (currentHour >= 19 || currentHour <= 2) {
-      client.publish("e_light/${receivedData.serialNumber}", "1");
+      client.publish(`e_light/${receivedData.serialNumber}`, "1");
       console.log("Light      --> ON");
     } else {
-      client.publish("e_light/${receivedData.serialNumber}", "0");
+      client.publish(`e_light/${receivedData.serialNumber}`, "0");
       console.log("Light      --> OFF");
     }
   }
@@ -183,10 +183,10 @@ function initializeMQTT() {
       console.log('====================================================')
 
       // The t_pump and t_air are always ON
-      publishForSensor("t_pump/${receivedData.serialNumber}", "1");
+      publishForSensor(`t_pump/${receivedData.serialNumber}`, "1");
       console.log("Tank Pump  --> ON");
 
-      publishForSensor("t_air/${receivedData.serialNumber}", "1");
+      publishForSensor(`t_air/${receivedData.serialNumber}`, "1");
       console.log("Air Tank   --> ON");
 
       check_e_fan(receivedData);
