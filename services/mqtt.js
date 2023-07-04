@@ -84,7 +84,7 @@ function initializeMQTT() {
       console.log("Fan        --> ON");
     } else {
       publishForSensor(`e_fan/${receivedData.serialNumber}`, "0");
-      console.log("Fan         --> OFF");
+      console.log("Fan        --> OFF");
     }
   };
 
@@ -181,6 +181,7 @@ function initializeMQTT() {
 
       let receivedData = JSON.parse(message);
       console.log('====================================================')
+      console.log(`                     ${receivedData.serialNumber}`);
 
       // The t_pump and t_air are always ON
       publishForSensor(`t_pump/${receivedData.serialNumber}`, "1");
