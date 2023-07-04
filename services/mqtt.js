@@ -189,10 +189,6 @@ function initializeMQTT() {
     }, 120000);
   }
   
-  setInterval(() => {
-    tPumpOperation(receivedData);
-  }, 120000);
-
   //Check Light status
   // function checkLightStatus(receivedData) {
   //   const currentTime = new Date();
@@ -239,8 +235,13 @@ function initializeMQTT() {
       check_e_fan(receivedData);
       check_t_valve(receivedData);
       handlePumps(receivedData);
-      tPumpOperation(receivedData);
+      //tPumpOperation(receivedData);
       //checkLightStatus(receivedData);
+
+      setInterval(() => {
+        tPumpOperation(receivedData);
+      }, 120000);
+      
       saveSensorData(receivedData);
     });
   }
