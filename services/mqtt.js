@@ -159,31 +159,21 @@ function initializeMQTT() {
 
   function tPumpOperation(receivedData) {
     let isPumpOn = false;
-  
+
     function turnOffPump() {
-      client.publish(`t_pump/${receivedData.serialNumber}`, "0", { qos: 1 }, (err) => {
-        if (err) {
-          console.error("Error publishing '0':", err);
-        } else {
-          console.log("Pump      --> OFF");
-          isPumpOn = false;
-          setTimeout(turnOnPump, 120000);
-        }
-      });
+      client.publish(`pump1/${receivedData.serialNumber}`, "0");
+      console.log("Pump      --> OFF");
+      isPumpOn = false;
+      setTimeout(turnOnPump, 120000);
     }
-  
+
     function turnOnPump() {
-      client.publish(`t_pump/${receivedData.serialNumber}`, "1", { qos: 1 }, (err) => {
-        if (err) {
-          console.error("Error publishing '1':", err);
-        } else {
-          console.log("Pump      --> ON");
-          isPumpOn = true;
-          setTimeout(turnOffPump, 120000);
-        }
-      });
+      client.publish(`pump1/${receivedData.serialNumber}`, "1");
+      console.log("Pump      --> OFF");
+      isPumpOn = false;
+      setTimeout(turnOffPump, 120000);
     }
-  
+
     turnOnPump();
   }
 
