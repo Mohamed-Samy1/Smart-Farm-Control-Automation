@@ -14,6 +14,10 @@ const dataSchema = new mongoose.Schema({
     type: Boolean,
     required: [true, "Please state if the device is paired or not."]
   },
+  control: {
+    type: String,
+    required: [true, "Please enter the control type."]
+  },
   T_temperature: {
     type: Number,
     required: [true, "Please enter the water temperature sensor reading."],

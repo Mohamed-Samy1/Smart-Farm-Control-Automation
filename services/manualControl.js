@@ -28,8 +28,8 @@ exports.manualControl =  (req, res) => {
   const { serialNumber, device, state } = req.body;
 
   // Check if the device and state fields are present in the request body
-  if (!device || !state) {
-    return res.status(400).send("Device and state fields are required");
+  if (!device || !state || !serialNumber) {
+    return res.status(400).send("Serial Number, Device, and state fields are required");
   }
 
   // Publish a message to the relevant MQTT topic based on the device and state
@@ -44,8 +44,3 @@ exports.manualControl =  (req, res) => {
     return res.status(200).send(`Successfully turned ${state} ${device}`);
   });
 };
-
-// Start the Express server
-app.listen(3000, () => {
-  console.log("Server listening on port 3000");
-});

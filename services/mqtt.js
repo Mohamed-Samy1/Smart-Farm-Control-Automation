@@ -7,6 +7,7 @@ async function saveSensorData(receivedData) {
     // Extract the relevant fields from the received data
     const {
       serialNumber,
+      control,
       paired,
       E_humidity,
       E_temperature,
@@ -15,9 +16,9 @@ async function saveSensorData(receivedData) {
       T_temperature,
       T_Waterlvl,
       T_PH,
-      T_EC
+      T_EC,
     } = receivedData;
-    
+
     // Find the farm with the provided serialNumber
     const farm = await Farm.findOne({ serialNumber });
     if (!farm) {
@@ -30,19 +31,23 @@ async function saveSensorData(receivedData) {
       {
         $set: {
           paired,
-          "T_temperature": T_temperature,
-          "E_temperature": E_temperature,
-          "E_co2": E_co2,
-          "E_lightLVL": E_lightLVL,
-          "E_humidity": E_humidity,
-          "T_Waterlvl": T_Waterlvl,
-          "T_PH": T_PH,
-          "T_EC": T_EC,
-        }
-      }, { upsert: true }
+          control,
+          T_temperature: T_temperature,
+          E_temperature: E_temperature,
+          E_co2: E_co2,
+          E_lightLVL: E_lightLVL,
+          E_humidity: E_humidity,
+          T_Waterlvl: T_Waterlvl,
+          T_PH: T_PH,
+          T_EC: T_EC,
+        },
+      },
+      { upsert: true }
     );
 
-    console.log(`Sensor data saved successfully for serial number ${serialNumber}`);
+    console.log(
+      `Sensor data saved successfully for serial number ${serialNumber}`
+    );
   } catch (error) {
     console.error("Error saving sensor data:", error);
   }
@@ -143,7 +148,8 @@ function initializeMQTT() {
         client.publish(`pump1/${receivedData.serialNumber}`, "0");
         client.publish(`pump2/${receivedData.serialNumber}`, "0");
         console.log("Pump 1     --> OFF");
-        console.log("Pump 2     --> OFF");      }
+        console.log("Pump 2     --> OFF");
+      }
     } else {
       client.publish(`pump1/${receivedData.serialNumber}`, "0");
       client.publish(`pump2/${receivedData.serialNumber}`, "0");
@@ -155,7 +161,7 @@ function initializeMQTT() {
   function checkLightStatus(receivedData) {
     const currentTime = new Date();
     const currentHour = currentTime.getHours();
-    
+
     //If it's between 7 PM and 2 AM
     if (currentHour >= 19 || currentHour <= 2) {
       client.publish(`e_light/${receivedData.serialNumber}`, "1");
@@ -178,24 +184,25 @@ function initializeMQTT() {
 
     // Log messages received on the topic
     client.on("message", function (topic, message) {
-
       let receivedData = JSON.parse(message);
-      console.log('====================================================')
-      console.log(`                     ${receivedData.serialNumber}`);
+      if (receivedData.control === "Auto") {
+        console.log("====================================================");
+        console.log(`                     ${receivedData.serialNumber}`);
 
-      // The t_pump and t_air are always ON
-      publishForSensor(`t_pump/${receivedData.serialNumber}`, "1");
-      console.log("Tank Pump  --> ON");
+        // The t_pump and t_air are always ON
+        publishForSensor(`t_pump/${receivedData.serialNumber}`, "1");
+        console.log("Tank Pump  --> ON");
 
-      publishForSensor(`t_air/${receivedData.serialNumber}`, "1");
-      console.log("Air Tank   --> ON");
+        publishForSensor(`t_air/${receivedData.serialNumber}`, "1");
+        console.log("Air Tank   --> ON");
 
-      check_e_fan(receivedData);
-      check_t_valve(receivedData);
-      handlePumps(receivedData);
-      checkLightStatus(receivedData);
-      saveSensorData(receivedData);
-      //removeOldData(receivedData);
+        check_e_fan(receivedData);
+        check_t_valve(receivedData);
+        handlePumps(receivedData);
+        checkLightStatus(receivedData);
+        saveSensorData(receivedData);
+        //removeOldData(receivedData);
+      }
     });
   }
 
@@ -203,40 +210,37 @@ function initializeMQTT() {
     client.publish(topic, data);
   }
 
-
   subscribeToMainTopic("hyrda-main");
 }
 
 module.exports = { initializeMQTT };
 
+// Example of published sensors data for a farm
+// {
+//   "serialNumber": "hCsdkfjcx2",
+//   "paired": true,
+//   "T_temperature": 25,
+//   "E_temperature": 25,
+//   "E_co2": 450,
+//   "E_lightLVL": 80,
+//   "E_humidity": 30,
+//   "T_Waterlvl": 7.2,
+//   "T_PH": 6.8,
+//   "T_EC": 2400
+// }
 
-  // Example of published sensors data for a farm
-  // {
-  //   "serialNumber": "hCsdkfjcx2",
-  //   "paired": true,
-  //   "T_temperature": 25,
-  //   "E_temperature": 25,
-  //   "E_co2": 450,
-  //   "E_lightLVL": 80,
-  //   "E_humidity": 30,
-  //   "T_Waterlvl": 7.2,
-  //   "T_PH": 6.8,
-  //   "T_EC": 2400
-  // }
+//remove old data each period of time from data collection
+// async function removeOldData(receivedData) {
+//   try {
+//     const currentTime = new Date();
+//     const sevenMinutesAgo = new Date(currentTime.getTime() - 7 * 60 * 1000);
 
-
-  //remove old data each period of time from data collection
-  // async function removeOldData(receivedData) {
-  //   try {
-  //     const currentTime = new Date();
-  //     const sevenMinutesAgo = new Date(currentTime.getTime() - 7 * 60 * 1000);
-  
-  //     const result = await Data.deleteMany({
-  //       createdAt: { $lte: sevenMinutesAgo },
-  //       serialNumber: receivedData.serialNumber,
-  //     });
-  //     console.log(`${result.deletedCount} documents removed for serial number ${receivedData.serialNumber}`);
-  //   } catch (error) {
-  //     console.error("Error removing old data:", error);
-  //   }
-  // }
+//     const result = await Data.deleteMany({
+//       createdAt: { $lte: sevenMinutesAgo },
+//       serialNumber: receivedData.serialNumber,
+//     });
+//     console.log(`${result.deletedCount} documents removed for serial number ${receivedData.serialNumber}`);
+//   } catch (error) {
+//     console.error("Error removing old data:", error);
+//   }
+// }
