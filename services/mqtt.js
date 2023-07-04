@@ -156,19 +156,19 @@ function initializeMQTT() {
   }
 
   //Check Light status
-  function checkLightStatus(receivedData) {
-    const currentTime = new Date();
-    const currentHour = currentTime.getHours();
+  // function checkLightStatus(receivedData) {
+  //   const currentTime = new Date();
+  //   const currentHour = currentTime.getHours();
 
-    //If it's between 7 PM and 2 AM
-    if (currentHour >= 19 || currentHour <= 2) {
-      client.publish(`e_light/${receivedData.serialNumber}`, "1");
-      console.log("Light      --> ON");
-    } else {
-      client.publish(`e_light/${receivedData.serialNumber}`, "0");
-      console.log("Light      --> OFF");
-    }
-  }
+  //   //If it's between 7 PM and 2 AM
+  //   if (currentHour >= 19 || currentHour <= 2) {
+  //     client.publish(`e_light/${receivedData.serialNumber}`, "1");
+  //     console.log("Light      --> ON");
+  //   } else {
+  //     client.publish(`e_light/${receivedData.serialNumber}`, "0");
+  //     console.log("Light      --> OFF");
+  //   }
+  // }
 
   function subscribeToMainTopic(topic) {
     // Subscribe to the topic
@@ -188,12 +188,15 @@ function initializeMQTT() {
       console.log("===================================================");
       console.log(`                     ${receivedData.serialNumber}`);
 
-      // The t_pump and t_air are always ON
+      // The t_pump and t_air, and e_light are always ON
       publishForSensor(`t_pump/${receivedData.serialNumber}`, "1");
       console.log("Tank Pump  --> ON");
 
       publishForSensor(`t_air/${receivedData.serialNumber}`, "1");
       console.log("Air Tank   --> ON");
+
+      publishForSensor(`e_light/${receivedData.serialNumber}`, "1");
+      console.log("Light   --> ON");
 
       check_e_fan(receivedData);
       check_t_valve(receivedData);
