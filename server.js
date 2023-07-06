@@ -62,6 +62,7 @@ mongoose
   .then(() => {
     console.log("Database was connected successfully!");
     // Initialize MQTT after the database connection is established
+    // Comment the next line for manual control
     initializeMQTT();
   })
   .catch((err) => console.log(err));
