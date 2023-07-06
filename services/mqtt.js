@@ -208,8 +208,8 @@ function initializeMQTT() {
       console.log(`                     ${receivedData.serialNumber}`);
 
       // The t_pump and t_air, and e_light are always ON
-      // publishForSensor(`t_pump/${receivedData.serialNumber}`, "1");
-      // console.log("Tank Pump  --> ON");
+      publishForSensor(`t_pump/${receivedData.serialNumber}`, "1");
+      console.log("Tank Pump  --> ON");
 
       publishForSensor(`t_air/${receivedData.serialNumber}`, "1");
       console.log("Air Tank   --> ON");
