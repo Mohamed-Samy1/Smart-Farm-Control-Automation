@@ -8,7 +8,7 @@ const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'E-Commerce System API',
+      title: 'Smart Farm Automation and Control System API',
       version: '1.0.0',
       description: 'My API documentation with Swagger',
     },
