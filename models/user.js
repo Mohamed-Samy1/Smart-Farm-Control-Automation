@@ -47,10 +47,7 @@ const userSchema = new mongoose.Schema({
         ref: 'User'
       }
     }
-  ],
-  //Not required and used only when reset is requested
-  resetToken: String,
-  resetTokenExpirtation: Date
+  ]
 }, { timestamps: true }
 );
 

@@ -44,7 +44,6 @@ const alertError = (err) => {
   return errors;
 };
 
-//USER REGISTRATION
 exports.register = async (req, res) => {
   try {
     const { 
@@ -96,7 +95,6 @@ exports.login = async (req, res) => {
     console.error(err);
     res.status(500).json({ error: 'Login failed.' });
   }
-  
 };
 
 //USER LOGOUT

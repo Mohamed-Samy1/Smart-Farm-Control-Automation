@@ -11,6 +11,7 @@ dotenv.config();
 const errorHandler = require("./utils/error-handler");
 const { initializeMQTT } = require("./services/mqtt");
 const { checkPlantHealthByCamera } = require("./controllers/plants");
+const { swaggerDocs } = require ('./utils/swagger');
 
 //Middlewares
 app.use(express.json());
@@ -63,13 +64,14 @@ mongoose
     console.log("Database was connected successfully!");
     // Initialize MQTT after the database connection is established
     // Comment the next line for manual control
-    initializeMQTT();
+    //initializeMQTT();
   })
   .catch((err) => console.log(err));
 
 //Server running
 app.listen(PORT, () => {
   console.log(`Server is up and running!`);
+  swaggerDocs(app, PORT);
 });
 
 // Call the checkPlantHealthByCamera function every 6 hours
