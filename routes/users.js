@@ -65,7 +65,70 @@ const usersController = require('../controllers/users');
  */
 router.post('/register', usersController.register);
 
-
+/**
+ * @swagger
+ * /users/login:
+ *   post:
+ *     summary: User login
+ *     tags:
+ *       - Users
+ *     description: Authenticate user with email and password, and return a token.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *             example:
+ *               email: mosalah@example.com
+ *               password: password123
+ *     responses:
+ *       200:
+ *         description: User authenticated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2Mzg3NTM4ZmJhMjQ3MTAwMTU1MDIyYmMiLCJpYXQiOjE2MzI3Mjg0MTIsImV4cCI6MTYzMzMyMjQxMn0.4Ww4eKt9PnEh1MH1RHGkLJWOtZyR1Yt7Zi06XcBf9d0"
+ *       400:
+ *         description: Input validation error or wrong password
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Wrong Password."
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "The user was not found!"
+ *       500:
+ *         description: Internal server error or login failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Login failed."
+ */
 //User Login
 router.post('/login', usersController.login);
 
