@@ -78,12 +78,10 @@ exports.register = async (req, res) => {
     const savedUser = await user.save();
 
     const token = createJWT(savedUser._id);
-    res
-      .status(201)
-      .json({
-        message: `${firstName} ${lastName} registered successfully.`,
-        token,
-      });
+    res.status(201).json({
+      message: `${firstName} ${lastName} registered successfully.`,
+      token,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Registration failed." });
@@ -101,18 +99,16 @@ exports.login = async (req, res) => {
 
     if (user && bcrypt.compareSync(req.body.password, user.password)) {
       const token = createJWT(user._id);
-      res
-        .status(200)
-        .json({
-          message: `${firstName} ${lastName} logged in successfully.`,
-          token,
-        });
+      res.status(200).json({
+        message: `${firstName} ${lastName} logged in successfully.`,
+        token,
+      });
     } else {
       return res.status(400).json({ message: "Wrong Password." });
     }
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Login failed." });
+    res.status(500).json({ message: "Login failed.", error: err });
   }
 };
 
