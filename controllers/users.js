@@ -100,7 +100,7 @@ exports.login = async (req, res) => {
     if (user && bcrypt.compareSync(req.body.password, user.password)) {
       const token = createJWT(user._id);
       res.status(200).json({
-        message: `${firstName} ${lastName} logged in successfully.`,
+        message: 'Logged in successfully.',
         token,
       });
     } else {
