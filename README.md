@@ -4,6 +4,14 @@
 
 ---
 
+## Documentation
+
+The API for Smart Farm is fully documented using **Swagger**. You can view the documentation and explore the available endpoints by following the link below:
+
+[Smart Farm API Documentation](https://sfc.onrender.com/docs/) (assets/documentationSwagger.jpg)
+
+---
+
 ## Features of the application
 - **Automated Irrigation**: Watering system triggered based on soil moisture levels.
 - **Environmental Monitoring**: Real-time tracking of temperature, humidity, and light conditions.
