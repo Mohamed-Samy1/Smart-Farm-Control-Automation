@@ -9,7 +9,7 @@ const farmsOwnershipsController = require('../controllers/farms_ownerships');
  *   put:
  *     summary: Change the ownership of a farm
  *     tags:
- *       - Farms
+ *       - FarmsOwnerships
  *     description: This endpoint allows changing the ownership of a farm by transferring it from the current owner to a new owner, based on the farm's serial number and the new owner's email.
  *     requestBody:
  *       required: true
@@ -83,7 +83,7 @@ router.put('/changeFarmOwner', farmsOwnershipsController.changeFarmOwner);
  *   put:
  *     summary: Change the ownership of a farm
  *     tags:
- *       - Farms
+ *       - FarmsOwnerships
  *     description: This endpoint allows changing the ownership of a farm by transferring it from the current owner to a new owner, based on the farm's serial number and the new owner's email.
  *     requestBody:
  *       required: true
