@@ -198,26 +198,17 @@ router.post('/logout', usersController.logout);
 
 /**
  * @swagger
- * securityDefinitions:
- *  BearerAuth:
- *    type: http
- *    scheme: bearer
- *    bearerFormat: JWT
- *    x-swagger-ui:
- *      in: header
- *      name: Authorization
- *
  * /users:
  *   get:
  *     summary: Get all users
  *     tags:
  *       - Users
- *     description: Returns a list of all users in the system.
+ *     description: Retrieve a list of all registered users. This endpoint requires authentication using a Bearer token.
  *     security:
  *       - BearerAuth: []
  *     responses:
  *       200:
- *         description: A list of all users in the system.
+ *         description: Successfully retrieved the list of users.
  *         content:
  *           application/json:
  *             schema:
@@ -227,33 +218,37 @@ router.post('/logout', usersController.logout);
  *                 properties:
  *                   _id:
  *                     type: string
- *                     description: The unique identifier of the user.
- *                   name:
+ *                     description: Unique identifier of the user.
+ *                   firstName:
  *                     type: string
- *                     description: The name of the user.
+ *                     description: User's first name.
+ *                   lastName:
+ *                     type: string
+ *                     description: User's last name.
  *                   email:
  *                     type: string
- *                     description: The email address of the user.
+ *                     description: User's email address.
  *                   role:
  *                     type: string
- *                     description: The role of the user (e.g. "user" or "admin").
+ *                     description: Role of the user (e.g., "user", "admin").
  *                   createdAt:
  *                     type: string
  *                     format: date-time
- *                     description: The date and time when the user was created.
+ *                     description: Date and time the user was created.
  *                   updatedAt:
  *                     type: string
  *                     format: date-time
- *                     description: The date and time when the user was last updated.
+ *                     description: Date and time the user was last updated.
  *               example:
- *                 - _id: 123456789012345678901234
- *                   name: John Doe
- *                   email: johndoe@example.com
- *                   role: user
- *                   createdAt: "2022-01-01T00:00:00.000Z"
- *                   updatedAt: "2022-01-01T00:00:00.000Z"
+ *                 - _id: "123456789012345678901234"
+ *                   firstName: "John"
+ *                   lastName: "Doe"
+ *                   email: "johndoe@example.com"
+ *                   role: "user"
+ *                   createdAt: "2023-01-01T00:00:00.000Z"
+ *                   updatedAt: "2023-01-10T00:00:00.000Z"
  *       401:
- *         description: Authentication failed. The token is invalid or expired.
+ *         description: Unauthorized. The token is invalid or expired.
  *         content:
  *           application/json:
  *             schema:
@@ -263,7 +258,7 @@ router.post('/logout', usersController.logout);
  *                   type: string
  *                   example: "Invalid or expired token."
  *       500:
- *         description: Internal server error or retrieving users failed.
+ *         description: Internal server error.
  *         content:
  *           application/json:
  *             schema:
@@ -271,13 +266,7 @@ router.post('/logout', usersController.logout);
  *               properties:
  *                 error:
  *                   type: string
- *                   example: "Retrieving users failed."
- *     components:
- *       securitySchemes:
- *         BearerAuth:
- *           type: http
- *           scheme: bearer
- *           bearerFormat: JWT
+ *                   example: "Unable to retrieve users."
  */
 router.get('/', usersController.getAllUsers);
 
