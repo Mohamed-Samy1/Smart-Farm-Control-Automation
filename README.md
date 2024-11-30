@@ -17,17 +17,17 @@
 ### Smart Farm Device Body
 This is the main body of the smart farm device, housing all the sensors and controllers that interact with the farm’s environment.
 
-![Smart Farm Device Body Screenshot](assets/device-body.png)
+![Smart Farm Device Body Screenshot](assets/device-body.jpg)
 
 ### Tank Sensor Readings
 The system continuously tracks the temperature's water levels and other crucial metrics to ensure the plants receive the proper amount of water.
 
-![Tank Sensor Readings Screenshot](assets/tank-sensor.png)
+![Tank Sensor Readings Screenshot](assets/tank-sensor.jpg)
 
 ### Device at Work with Light for Plant Growth
 The smart farm device uses lighting systems to supplement natural sunlight, enhancing plant growth even during low light conditions.
 
-![Device Working with Light Screenshot](assets/device-light.png)
+![Device Working with Light Screenshot](assets/device-light.jpg)
 
 ### Non-Relational Database Schema design
 ![Database Design](assets/database.png)
