@@ -130,7 +130,7 @@ exports.logout = (req, res) => {
 
 exports.getAllUsers = async (req, res) => {
   try {
-    const user = await getAuthenticatedUser(req);
+    //const user = await getAuthenticatedUser(req);
 
     const userList = await User.find().select("-password");
 

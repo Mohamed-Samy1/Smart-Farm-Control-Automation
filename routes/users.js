@@ -204,6 +204,14 @@ router.post('/logout', usersController.logout);
  *     tags:
  *       - Users
  *     description: Retrieve a list of all registered users. This endpoint requires authentication using a Bearer token.
+ *     parameters:
+ *       - in: header
+ *         name: Authorization
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *         description: "JWT token to authorize the request. Use the format 'Bearer <token>'."
  *     security:
  *       - BearerAuth: []
  *     responses:
@@ -339,6 +347,10 @@ router.get("/getUser", usersController.getUser);
  *     tags:
  *       - Users
  *     description: Update user details such as name, email, or phone number.
+ *     parameters:
+ *       - in: query
+ *         name: userId
+ *         required: true
  *     requestBody:
  *       required: true
  *       content:
