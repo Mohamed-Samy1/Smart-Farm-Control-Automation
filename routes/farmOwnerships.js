@@ -79,7 +79,7 @@ router.put('/changeFarmOwner', farmsOwnershipsController.changeFarmOwner);
 
 /**
  * @swagger
- * /farms/changeFarmOwner:
+ * /farms/ownershiphistory:
  *   put:
  *     summary: Change the ownership of a farm
  *     tags:
@@ -148,6 +148,6 @@ router.put('/changeFarmOwner', farmsOwnershipsController.changeFarmOwner);
  *                   example: "The farm was not found!" 
  */
 //Get All Items
-router.get('/', farmsOwnershipsController.getFarmsOwnershipsHistory);
+router.get('/ownershiphistory', farmsOwnershipsController.getFarmsOwnershipsHistory);
 
 module.exports = router;
