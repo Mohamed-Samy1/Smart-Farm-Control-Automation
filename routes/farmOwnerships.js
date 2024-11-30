@@ -1,9 +1,7 @@
 express = require("express");
-
 const router = express.Router();
 
 const farmsOwnershipsController = require('../controllers/farms_ownerships');
-
 
 /**
  * @swagger

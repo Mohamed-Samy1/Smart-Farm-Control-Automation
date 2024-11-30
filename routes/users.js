@@ -249,9 +249,9 @@ router.post('/logout', usersController.logout);
  *                     description: Date and time the user was last updated.
  *               example:
  *                 - _id: "123456789012345678901234"
- *                   firstName: "John"
- *                   lastName: "Doe"
- *                   email: "johndoe@example.com"
+ *                   firstName: "Mohamed"
+ *                   lastName: "Samy"
+ *                   email: "mohamedsamy@example.com"
  *                   role: "user"
  *                   createdAt: "2023-01-01T00:00:00.000Z"
  *                   updatedAt: "2023-01-10T00:00:00.000Z"
@@ -317,9 +317,9 @@ router.get('/', usersController.getAllUsers);
  *                   format: date-time
  *               example:
  *                 _id: "123456789012345678901234"
- *                 firstName: "John"
- *                 lastName: "Doe"
- *                 email: "john.doe@example.com"
+ *                 firstName: "Mohamed"
+ *                 lastName: "Samy"
+ *                 email: "mohamed.samy@example.com"
  *                 role: "user"
  *                 createdAt: "2023-01-01T00:00:00.000Z"
  *       404:
