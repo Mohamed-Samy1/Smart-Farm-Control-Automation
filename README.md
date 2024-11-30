@@ -8,7 +8,8 @@
 
 The API for Smart Farm is fully documented using **Swagger**. You can view the documentation and explore the available endpoints by following the link below:
 
-[Smart Farm API Documentation](https://sfc.onrender.com/docs/) (assets/documentationSwagger.jpg)
+[Smart Farm API Documentation](https://sfc.onrender.com/docs/)(assets/documentationSwagger.jpg)
+![Smart Farm API Documentation](assets/documentationSwagger.jpg)
 
 ---
 
