@@ -74,6 +74,8 @@ app.listen(PORT, () => {
   swaggerDocs(app, PORT);
 });
 
+
+
 // Call the checkPlantHealthByCamera function every 6 hours
 //  const req = {}, res = {};
 //  checkPlantHealthByCamera(req, res);

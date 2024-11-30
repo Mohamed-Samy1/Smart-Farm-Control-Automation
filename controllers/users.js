@@ -100,7 +100,7 @@ exports.login = async (req, res) => {
     if (user && bcrypt.compareSync(req.body.password, user.password)) {
       const token = createJWT(user._id);
       res.status(200).json({
-        message: 'Logged in successfully.',
+        message: "Logged in successfully.",
         token,
       });
     } else {
@@ -112,13 +112,22 @@ exports.login = async (req, res) => {
   }
 };
 
-//USER LOGOUT
 exports.logout = (req, res) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ error: "Token is required." });
+    }
+    jwt.verify(token, process.env.secret);
+  } catch (err) {
+    return res.status(401).json({ error: "Invalid token." });
+  }
+
   res.cookie("jwt", "", { maxAge: 1 });
   res.status(200).json({ logout: true });
 };
 
-//Getting the list of all users
 exports.getAllUsers = async (req, res) => {
   try {
     const user = await getAuthenticatedUser(req);
@@ -130,7 +139,7 @@ exports.getAllUsers = async (req, res) => {
     }
     res.status(200).send(userList);
   } catch (e) {
-    return res.status(401).json({ error: "Authentication failed" });
+    return res.status(401).json({ error: "Authentication failed, please use valid token." });
   }
 };
 

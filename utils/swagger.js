@@ -41,8 +41,10 @@ const swaggerOptions = {
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
 exports.swaggerDocs = async (app, port) => {
-  // Swagger Page
-  app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+  // Swagger Page with security option
+  app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    security: [{ BearerAuth: [] }]
+  }));
 
   // Documentation in JSON format
   app.get('/docs.json', (req, res) => {
