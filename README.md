@@ -30,7 +30,7 @@ This is the main body of the smart farm device, housing all the sensors and cont
 ![Smart Farm Device Body Screenshot](assets/device-body.jpg)
 
 ### Tank Sensor Readings
-The system continuously tracks the temperature's water levels and other crucial metrics to ensure the plants receive the proper amount of water.
+The system continuously tracks the temperature's level and other crucial metrics to ensure the plants receive the proper amount of water.
 
 ![Tank Sensor Readings Screenshot](assets/tank-sensor.jpg)
 
